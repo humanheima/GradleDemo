@@ -1,0 +1,94 @@
+apply plugin: 'com.android.application'
+//编译时间
+def buildTime() {
+    return new Date().format("yyyy-MM-dd HH:mm:ss")
+}
+//编译机器
+def hostName() {
+    return System.getProperty("user.name") + "@" + InetAddress.localHost.hostName;
+}
+//最新的commit版本
+def revision() {
+    def code = new ByteArrayOutputStream();
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = code;
+    }
+    return code.toString();
+}
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    defaultConfig {
+        applicationId "com.hm.gradledemo"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        resValue "string", "build_time", buildTime()
+        resValue "string", "build_host", hostName()
+        resValue "string", "build_revision", revision()
+    }
+
+    signingConfigs {
+        config {
+            storeFile file(STORE_FILE)
+            storePassword STORE_PASSWORD
+            keyAlias KEY_ALIAS
+            keyPassword KEY_PASSWORD
+        }
+        debug {
+            storeFile file(STORE_FILE)
+            storePassword STORE_PASSWORD
+            keyAlias KEY_ALIAS
+            keyPassword KEY_PASSWORD
+        }
+    }
+
+    //多渠道打包
+    productFlavors {
+        huawei {}
+        mi {}
+        productFlavors.all {
+            flavor -> flavor.manifestPlaceholders = [CHANNEL_NAME: name]
+        }
+    }
+
+    //自定义导出的apk名称
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            output.outputFile = new File(
+                    output.outputFile.parent + "/${variant.buildType.name}",
+                    "hm-${variant.buildType.name}-${variant.versionName}" +
+                            "-${variant.productFlavors[0].name}.apk".toLowerCase()
+            )
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //signingConfig signingConfigs.release
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //signingConfig signingConfigs.debug
+        }
+    }
+
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.2.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha8'
+    testCompile 'junit:junit:4.12'
+}
