@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+//apply plugin: 'com.dx168.fastdex'
 //编译时间
 def buildTime() {
     return new Date().format("yyyy-MM-dd HH:mm:ss")
@@ -33,7 +34,7 @@ android {
     }
 
     signingConfigs {
-        config {
+        release {
             storeFile file(STORE_FILE)
             storePassword STORE_PASSWORD
             keyAlias KEY_ALIAS
@@ -72,15 +73,14 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            //signingConfig signingConfigs.release
+            signingConfig signingConfigs.release
         }
         debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            //signingConfig signingConfigs.debug
+            signingConfig signingConfigs.debug
         }
     }
-
 }
 
 dependencies {
@@ -89,6 +89,8 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:25.2.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha8'
     testCompile 'junit:junit:4.12'
+    debugCompile 'com.facebook.stetho:stetho:1.5.0'
+    debugCompile project(path: ':library', configuration: 'debug')
+    releaseCompile project(path: ':library', configuration: 'debug')
 }

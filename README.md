@@ -15,7 +15,7 @@
 14. ctrl + 鼠标左击，或者 ctrl + alt +f7 查看一个方法或者变量在什么地方被使用。
 15. ctrl + shift + backspace 回到上次编辑的地方。
 16. ctrl + shift +f7 查看相同的语句，比如一个 'return null'。
-17. ctrl + 鼠标左击，可以打开一个文件坐在的路径。![](c:\users\administrator\desktop\img_first.png)
+17. ctrl + 鼠标左击，可以打开一个文件坐在的路径。
 18. ctrl + i  实现方法。
 19. name.isempty(),这时候，如果要用if 把前面的代码包起来，就可以在name.isempty()输入 ‘.’然后 按 ctrl +j.
 20. when choosing a live template from a suggestion list, press ctrl+q to view quick documentation - to be sure you make a right choice:
