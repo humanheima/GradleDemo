@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 //apply plugin: 'com.dx168.fastdex'
 //编译时间
-def buildTime() {
+def static buildTime() {
     return new Date().format("yyyy-MM-dd HH:mm:ss")
 }
 //编译机器
-def hostName() {
+def static hostName() {
     return System.getProperty("user.name") + "@" + InetAddress.localHost.hostName;
 }
 //最新的commit版本
@@ -15,7 +15,7 @@ def revision() {
         commandLine 'git', 'rev-parse', '--short', 'HEAD'
         standardOutput = code;
     }
-    return code.toString();
+    return code.toString()
 }
 
 android {
@@ -48,23 +48,24 @@ android {
         }
     }
 
+    flavorDimensions "tier"
     //多渠道打包
     productFlavors {
-        huawei {}
-        mi {}
+        huawei {
+            dimension "tier"
+        }
+        mi {
+            dimension "tier"
+        }
         productFlavors.all {
             flavor -> flavor.manifestPlaceholders = [CHANNEL_NAME: name]
         }
     }
 
-    //自定义导出的apk名称
-    applicationVariants.all { variant ->
-        variant.outputs.each { output ->
-            output.outputFile = new File(
-                    output.outputFile.parent + "/${variant.buildType.name}",
-                    "hm-${variant.buildType.name}-${variant.versionName}" +
-                            "-${variant.productFlavors[0].name}.apk".toLowerCase()
-            )
+    //重命名apk
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "${variant.name}-${variant.versionName}-${variant.buildType.name}.apk"
         }
     }
 
@@ -84,13 +85,9 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile 'com.android.support:appcompat-v7:25.2.0'
-    testCompile 'junit:junit:4.12'
-    debugCompile 'com.facebook.stetho:stetho:1.5.0'
-    debugCompile project(path: ':library', configuration: 'debug')
-    releaseCompile project(path: ':library', configuration: 'debug')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "com.android.support:appcompat-v7:$rootProject.ext.supportVersion"
+    testImplementation 'junit:junit:4.12'
+    debugImplementation 'com.facebook.stetho:stetho:1.5.0'
+    debugImplementation project(path: ':library')
 }

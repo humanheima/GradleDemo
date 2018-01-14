@@ -47,6 +47,8 @@ press esc to remove highlighting.
 3. gradlew build 检查依赖并编译打包
 4. gradlew assemblerelease 编译release版本
 5. gradlew assembledebug 编译debug版本
+6. gradlew :app:dependencies --configuration implementation 查看 app implementation  了那些依赖
+ 
 
 ## ADB 命令
 1. adb devices 列出所有连接设备 或者使用 adb devices -l 

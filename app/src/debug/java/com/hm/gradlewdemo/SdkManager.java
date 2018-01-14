@@ -12,6 +12,6 @@ public class SdkManager {
 
     public static void init(Context context) {
         Stetho.initializeWithDefaults(context);
-        Logger.init("mylog");
+        Logger.e("init logger");
     }
 }
