@@ -63,6 +63,105 @@ press esc to remove highlighting.
 10. adb shell pm list packages -f 查看所有已安装应用的包名
 11. adb push README.md /sdcard/test/README.md 
 
+##APK瘦身
+
+1. 代码混淆可以减小该文件的大小，因为混淆后的代码将较长的文件名、实例、变量、方法名等等做了简化，从而实现字节长度上的优化。
+2. 删掉没有用到的代码和资源 可以借助Android Studio→Inspect Code...对工程做静态代码检查，删掉无用的代码。release 版本开启 ` minifyEnabled true shrinkResources true` 删除无用的资源
+* 一个APK尽量只用一套图片，从内存占用和适配的角度考虑，这一套图建议放在xhdpi文件夹下；
+* 使用tinypng等图片压缩工具对图片进行压缩；
+* 使用VectorDrawable,能不用图片的就不用图片（用代码实现），比如说使用`shape`实现圆角背景色
+3. 只提供对主流架构的支持，比如arm，对于mips和x86架构可以考虑不支持，这样可以大大减小APK的体积；
+
+##性能优化
+1. 内存优化，使用Android Monitor；第三方内存泄露分析工具Leakcanary
+ * 加载图片进行尺寸压缩
+ * 使用Android提供的集合 SparseArray
+ * 避免内存泄漏
+2. 性能问题 ，可以启用严格模式，使用HierarchyViewer,还有开发者选项里的过渡绘制检测工具等
+ * fragment 可以考虑使用懒加载
+ * 减少布局层级
+ * 使用 include 和 merge 标签
+ * ViewStub的使用
+ * 去掉没用的背景色，去掉Window背景
+ * 使用Space：过渡绘制问题是因为绘制引起的，space标签可以只在布局文件中占位，不绘制，Space标签有对应的java类Space.java，通过阅读源码可以发现，它继承至View.java，并且复写了draw方法，该方法为空，既没有调用父类的draw方法，也没有执行自己的代码，表示该类是没有绘制操作的，但onMeasure方法正常调用，说明是有宽高的。
+ 
+ 3. 冷启动优化 优化方案 [Android 你应该知道的的应用冷启动过程分析和优化方案](http://yifeng.studio/2016/11/15/android-optimize-for-cold-start/)
+    1. 开发人员唯一能做的就是在 Application 和 第一个 Activity 中，减少 onCreate() 方法的工作量，从而缩短冷启动的时间。像应用中嵌入的一些第三方 SDK，都建议在 Application 中做一些初始化工作，开发人员不妨采取懒加载的形式移除这部分代码，而在真正需要用到第三方 SDK 时再进行初始化。
+    2. 通过主题设置，不显示启动时的白屏背景。新建一个主题样式，并添加如下属性：
+    
+    ```
+    <style name="LaunchStyle" parent="AppTheme">
+    <item name="android:windowIsTranslucent">true</item>
+    <item name="android:windowNoTitle">true</item>
+    </style>
+    ```
+    然后将这个主题样式设置给第一个启动的 Activity
+    
+    ``` 
+      <activity android:name=".MainActivity"
+                android:theme="@style/LaunchStyle">
+                <intent-filter>
+                    <action android:name="android.intent.action.MAIN"/>
+    
+                    <category android:name="android.intent.category.LAUNCHER"/>
+                </intent-filter>
+            </activity>
+    ```
+    再修改该 Activity 类的代码，在加载布局视图前，将主题修改回来
+    
+    ```
+    @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setTheme(R.style.AppTheme);
+            setContentView(R.layout.activity_main);
+        }
+
+    ```
+    这种方式下：用户点击桌面图标，没有任何反应，过一段时间应用才打开。其实这里只是将白屏背景透明化或者隐藏起来而已。我们可以通过主题中的 windowBackground 属性，自定义应用启动时的窗口背景。
+    
+    新建一个名为 shape_launch.xml 的 drawable 文件
+    ```
+    <?xml version="1.0" encoding="utf-8"?>
+    <layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:opacity="opaque">
+    <item android:drawable="@color/colorPrimary"/>
+    <item >
+        <bitmap
+            android:src="@mipmap/ic_launcher"
+            android:gravity="center" />
+    </item>
+    </layer-list>
+
+    ```
+    然后修改 styles.xml 文件中的主题样式
+    ```
+    <style name="LaunchStyle" parent="AppTheme">
+    	<item name="android:windowBackground">@drawable/shape_launch</item>
+    </style>
+    ```
+    最后将这个主题设置给启动的 Activity，设置过程和上面隐藏启动窗口时的设置一样
+    
+    第二种，使用与主界面 UI 框架一致的 placeholder 内容，这种情况下需要计算诸如 Statusbar、Toolbar 控件的高度，shape_launch.xml 内容如下：
+```java
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:opacity="opaque">
+    <item android:drawable="@color/colorPrimaryDark"/>
+    <item
+        android:drawable="@color/colorPrimary"
+        android:top="25dp"/>
+    <item
+        android:top="81dp"
+        android:drawable="@android:color/white">
+    </item>
+</layer-list>
+
+```
+这里模拟了一个高度为25dp的状态栏和一个高度为56dp的标题栏，给用户一种错觉：点击桌面图标，应用立即启动并进入主界面。
+    
+ 
+
 
 
 

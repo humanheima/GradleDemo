@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Gradle Demo.iml" filepath="$PROJECT_DIR$/.idea/Gradle Demo.iml" />
-      <module fileurl="file://D:\github\Gradle Demo\GradleDemo.iml" filepath="D:\github\Gradle Demo\GradleDemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" />
     </modules>
