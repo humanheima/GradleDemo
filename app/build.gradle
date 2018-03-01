@@ -6,7 +6,7 @@ def static buildTime() {
 }
 //编译机器
 def static hostName() {
-    return System.getProperty("user.name") + "@" + InetAddress.localHost.hostName;
+    return System.getProperty("user.name") + "@" + InetAddress.localHost.hostName
 }
 //最新的commit版本
 def revision() {
@@ -27,7 +27,6 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         resValue "string", "build_time", buildTime()
         resValue "string", "build_host", hostName()
         resValue "string", "build_revision", revision()
@@ -53,9 +52,11 @@ android {
     productFlavors {
         huawei {
             dimension "tier"
+            applicationId "com.hm.huaweigradledemo"
         }
         mi {
             dimension "tier"
+            applicationId "com.hm.migradledemo"
         }
         productFlavors.all {
             flavor -> flavor.manifestPlaceholders = [CHANNEL_NAME: name]
@@ -87,7 +88,6 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "com.android.support:appcompat-v7:$rootProject.ext.supportVersion"
-    testImplementation 'junit:junit:4.12'
     debugImplementation 'com.facebook.stetho:stetho:1.5.0'
     debugImplementation project(path: ':library')
 }
