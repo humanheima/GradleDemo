@@ -63,7 +63,7 @@ press esc to remove highlighting.
 10. adb shell pm list packages -f 查看所有已安装应用的包名
 11. adb push README.md /sdcard/test/README.md 
 
-##APK瘦身
+## APK瘦身
 
 1. 代码混淆可以减小该文件的大小，因为混淆后的代码将较长的文件名、实例、变量、方法名等等做了简化，从而实现字节长度上的优化。
 2. 删掉没有用到的代码和资源 可以借助Android Studio→Inspect Code...对工程做静态代码检查，删掉无用的代码。release 版本开启 ` minifyEnabled true shrinkResources true` 删除无用的资源
@@ -72,7 +72,7 @@ press esc to remove highlighting.
 * 使用VectorDrawable,能不用图片的就不用图片（用代码实现），比如说使用`shape`实现圆角背景色
 3. 只提供对主流架构的支持，比如arm，对于mips和x86架构可以考虑不支持，这样可以大大减小APK的体积；
 
-##性能优化
+## 性能优化
 1. 内存优化，使用Android Monitor；第三方内存泄露分析工具Leakcanary
  * 加载图片进行尺寸压缩
  * 使用Android提供的集合 SparseArray
