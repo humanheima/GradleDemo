@@ -20,7 +20,6 @@ def revision() {
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
         applicationId "com.hm.gradledemo"
         minSdkVersion rootProject.ext.minSdkVersion

@@ -20,5 +20,8 @@ public class MainActivity extends AppCompatActivity {
         Lg.e(TAG, getString(R.string.build_revision));
         tvPackageName = findViewById(R.id.tv_package_name);
         tvPackageName.setText("packageName:" + getPackageName());
+        getApplicationContext();
+
+        getApplication();
     }
 }
