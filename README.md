@@ -50,7 +50,7 @@ press esc to remove highlighting.
 6. gradlew :app:dependencies --configuration implementation 查看 app implementation  了那些依赖
  
 
-## ADB 命令
+## ADB 命令 参考链接 http://yuanfentiank789.github.io/2016/09/01/adb/
 1. adb devices 列出所有连接设备 或者使用 adb devices -l 
 2. adb install app\build\outputs\apk\debug\hm-debug-1.0-huawei.apk 安装apk
 3. adb uninstall [-k] <package> 卸载包名为package的应用('-k' 意味着保存数据和缓存目录)
@@ -62,6 +62,44 @@ press esc to remove highlighting.
 9. adb shell getprop ro.build.version.release 获取手机系统版本
 10. adb shell pm list packages -f 查看所有已安装应用的包名
 11. adb push README.md /sdcard/test/README.md 
+12. adb tcpip PORT               restart adb server listening on TCP on PORT
+13. adb connect HOST[:PORT]      connect to a device via TCP/IP [default port=5555]
+使用adb命令启动应用
+```xml
+adb shell 
+am start -n 包名/要启动的activity的全路径名 例如
+am start -n com.hm.retrofitrxjavademo/com.hm.retrofitrxjavademo.ui.activity.MainActivity
+```
+查看手机型号
+```xml
+adb shell getprop ro.product.model
+```
+查看分辨率
+```xml
+adb shell wm size
+```
+查看屏幕密度
+```xml
+adb shell wm density
+```
+显示屏参数
+```xml
+adb shell dumpsys window displays
+```
+查看Android 系统版本
+```xml
+adb shell getprop ro.build.version.release
+```
+截图,可以使用 adb shell screencap -h 查看 screencap 命令的帮助信息
+```xml
+adb shell screencap -p /sdcard/sc.png 
+```
+录屏 可以使用 adb shell screenrecord --help
+```xml
+adb shell screenrecord /sdcard/filename.mp4
+```
+
+
 
 ## APK瘦身
 

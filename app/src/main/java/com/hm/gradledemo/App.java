@@ -13,6 +13,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         SdkManager.init(this);
+
     }
 
 }
