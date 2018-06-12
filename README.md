@@ -62,6 +62,11 @@ press esc to remove highlighting.
 9. adb shell getprop ro.build.version.release 获取手机系统版本
 10. adb shell pm list packages -f 查看所有已安装应用的包名
 11. adb push README.md /sdcard/test/README.md 
+12. adb tcpip PORT               restart adb server listening on TCP on PORT
+13. adb connect HOST[:PORT]      connect to a device via TCP/IP [default port=5555]
+
+
+
 
 ## APK瘦身
 

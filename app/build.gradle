@@ -44,6 +44,9 @@ android {
             keyAlias KEY_ALIAS
             keyPassword KEY_PASSWORD
         }
+
+
+
     }
 
     flavorDimensions "tier"
@@ -80,6 +83,15 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
+        }
+
+        forTest{
+            initWith debug
+
+            ndk{
+                abiFilters "armeaib"
+            }
+
         }
     }
 }
