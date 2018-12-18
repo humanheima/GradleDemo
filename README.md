@@ -112,9 +112,14 @@ adb shell screenrecord /sdcard/filename.mp4
 
 ## 性能优化
 1. 内存优化，使用Android Monitor；第三方内存泄露分析工具Leakcanary
- * 加载图片进行尺寸压缩
- * 使用Android提供的集合 SparseArray
- * 避免内存泄漏
+ * 及时stop服务，可以考虑使用IntentService
+ * 加载图片进行尺寸压缩 inSampleSize；使用占用内存小的解码格式等等
+ * 使用优化的数据容器 考虑使用优化过数据的容器 SparseArray / SparseBooleanArray / LongSparseArray 代替 HashMap 等传统数据结构
+ * 避免使用枚举
+ * 避免创建大量临时对象，比如在onDraw()方法中分配对象。for循环中使用'+'连接字符串
+ * 优化层次布局
+ * 避免内存泄漏 Handler内部类持有Activity的引用。
+
 2. 性能问题 ，可以启用严格模式，使用HierarchyViewer,还有开发者选项里的过渡绘制检测工具等
  * fragment 可以考虑使用懒加载
  * 减少布局层级
@@ -197,6 +202,10 @@ adb shell screenrecord /sdcard/filename.mp4
 
 ```
 这里模拟了一个高度为25dp的状态栏和一个高度为56dp的标题栏，给用户一种错觉：点击桌面图标，应用立即启动并进入主界面。
+
+### Java 垃圾回收
+
+1. 新生代适用于复制算法，而对于老年代则采取标记-压缩算法。
     
  
 
