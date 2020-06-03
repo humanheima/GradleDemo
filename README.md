@@ -36,6 +36,19 @@ adb shell getprop ro.product.model
 ```xml
 adb shell wm size
 ```
+
+```
+Physical size: 1080x1920
+Override size: 2160x2200
+
+```
+修改屏幕分辨率
+```
+wm size 2160x2200
+```
+修改完毕以后，可以使用`adb shell wm size`查看物理实际分辨率然后改回来。
+
+
 查看屏幕密度
 ```xml
 adb shell wm density
