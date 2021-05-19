@@ -46,7 +46,14 @@ Override size: 2160x2200
 ```
 wm size 2160x2200
 ```
-修改完毕以后，可以使用`adb shell wm size`查看物理实际分辨率然后改回来。
+
+直接使用dp修改
+
+```java
+wm size360dpx640dp
+```
+
+修改完毕以后，也可以使用`adb shell reset`重置。
 
 
 查看屏幕密度
