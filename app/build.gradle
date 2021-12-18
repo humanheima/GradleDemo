@@ -111,7 +111,7 @@ android {
             //时间戳
             def timeNow
             //是否为Jenkins打包
-            println("isJenkins: " + IS_JENKINS + " " + APP_VERSION)
+            println("打包分支 = " + BRANCH + " , isJenkins = " + IS_JENKINS + " , APP_VERSION = " + APP_VERSION)
             if ("true" == IS_JENKINS) {
                 //Jenkins打包的时间
                 timeNow = BUILD_TIME
