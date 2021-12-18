@@ -18,8 +18,16 @@ def revision() {
     return code.toString()
 }
 
+static def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyy-MM-dd-HH:mm:ss')
+    return "local_time：" + formattedDate
+}
+
 android {
+
     compileSdkVersion rootProject.ext.compileSdkVersion
+
     defaultConfig {
         applicationId "com.hm.gradledemo"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -46,34 +54,14 @@ android {
         }
 
 
-
     }
 
-    flavorDimensions "tier"
-    //多渠道打包
-    productFlavors {
-        huawei {
-            dimension "tier"
-            applicationId "com.hm.huaweigradledemo"
-        }
-        mi {
-            dimension "tier"
-            applicationId "com.hm.migradledemo"
-        }
-        productFlavors.all {
-            flavor -> flavor.manifestPlaceholders = [CHANNEL_NAME: name]
-        }
-    }
-
-    //重命名apk
-    android.applicationVariants.all { variant ->
-        variant.outputs.all {
-            outputFileName = "${variant.name}-${variant.versionName}-${variant.buildType.name}.apk"
-        }
-    }
-
+    /**
+     * 构建类型
+     */
     buildTypes {
         release {
+            // Enables code shrinking for the release build type.
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -85,13 +73,55 @@ android {
             signingConfig signingConfigs.debug
         }
 
-        forTest{
+        forTest {
             initWith debug
 
-            ndk{
+            ndk {
                 abiFilters "armeaib"
             }
 
+        }
+    }
+
+
+    flavorDimensions "tier"
+    /**
+     * productFlavors代码块用来配置多个产品变种。这允许你使用不同的变种配置来覆盖defaultConfig代码块中的配置，从而你创建不同版本的App。
+     *
+     * 产品变种 + 构建类型 构建出来的就是构建变体
+     */
+    productFlavors {
+        huawei {
+            dimension "tier"
+            applicationId "com.hm.huaweigradledemo"
+        }
+        mi {
+            dimension "tier"
+            applicationId "com.hm.migradledemo"
+        }
+        productFlavors.all {
+                //您可以在构建变体配置中为清单文件中的某些属性指定值，替换AndroidManifest.xml中的CHANNEL_NAME
+            flavor -> flavor.manifestPlaceholders = [CHANNEL_NAME: name]
+        }
+    }
+
+    //重命名apk
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            //新名字
+            def newName
+            //时间戳
+            def timeNow
+            //是否为Jenkins打包
+            println("iskenkins: " + IS_JENKINS + " " + APP_VERSION)
+            if ("true" == IS_JENKINS) {
+                //Jenkins打包的时间
+                timeNow = BUILD_TIME
+            } else {
+                //本机打包的时间
+                timeNow = getDate()
+            }
+            outputFileName = "${variant.name}-${variant.versionName}-${timeNow}.apk"
         }
     }
 }

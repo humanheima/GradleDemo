@@ -29,6 +29,4 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "com.android.support:appcompat-v7:$rootProject.ext.supportVersion"
-    testImplementation 'junit:junit:4.12'
-    debugApi 'com.orhanobut:logger:2.1.1'
 }

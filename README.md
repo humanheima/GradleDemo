@@ -1,11 +1,24 @@
+* CMD+K 强制清空终端内容并将偏移置0
+
+参考链接：
+
+* [配置 build ](https://developer.android.com/studio/build?hl=zh-cn#groovy)
+
 ### 学习gradle
 
 ## gradle命令
 1. gradlew -v 查看 版本信息
 2. gradlew -h 查看帮助
 3. gradlew build 检查依赖并编译打包
+
+5. gradlew assembleDebug 编译debug版本
+
+这将在`project_name/module_name/build/outputs/apk/`中输出APK。该文件已使用调试密钥进行签名并使用`zipalign`对齐，因此您可以立即将其安装到设备上。
+
+
 4. gradlew assemblerelease 编译release版本
-5. gradlew assembledebug 编译debug版本
+
+
 6. gradlew :app:dependencies --configuration implementation 查看 app implementation  了那些依赖
 
 ## ADB 命令 参考链接 http://yuanfentiank789.github.io/2016/09/01/adb/
@@ -94,6 +107,11 @@ adb shell dumpsys dropbox data_app_crash --print > crash.txt
 
 adb shell dumpsys dropbox data_app_anr --print > anr.txt
 ```
+
+### jenkins打包
+
+* [Mac 环境下 Android 使用Jenkins 构建自动化打包](https://blog.csdn.net/u011418943/article/details/108131146)
+
 
 
 
