@@ -110,8 +110,15 @@ android {
         variant.outputs.all {
             //时间戳
             def timeNow
+            def branchName
+            int lastSplit = BRANCH.lastIndexOf("/")
+            if (lastSplit != -1) {
+                branchName = BRANCH.substring(lastSplit+1)
+            } else {
+                branchName = BRANCH
+            }
             //是否为Jenkins打包
-            println("打包分支 = " + BRANCH + " , isJenkins = " + IS_JENKINS + " , APP_VERSION = " + APP_VERSION)
+            println("打包分支 = " + branchName + " , isJenkins = " + IS_JENKINS + " , APP_VERSION = " + APP_VERSION)
             if ("true" == IS_JENKINS) {
                 //Jenkins打包的时间
                 timeNow = BUILD_TIME
@@ -119,7 +126,7 @@ android {
                 //本机打包的时间
                 timeNow = getDate()
             }
-            outputFileName = "${variant.name}-branch_${BRANCH}-${APP_VERSION}-${timeNow}.apk"
+            outputFileName = "${variant.name}-branch_${branchName}-${APP_VERSION}-${timeNow}.apk"
         }
     }
 }
