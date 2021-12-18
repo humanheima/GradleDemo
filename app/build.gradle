@@ -108,8 +108,6 @@ android {
     //重命名apk
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            //新名字
-            def newName
             //时间戳
             def timeNow
             //是否为Jenkins打包
@@ -121,7 +119,7 @@ android {
                 //本机打包的时间
                 timeNow = getDate()
             }
-            outputFileName = "${variant.name}-${variant.versionName}-${timeNow}.apk"
+            outputFileName = "${variant.name}-${APP_VERSION}-${timeNow}.apk"
         }
     }
 }
