@@ -119,7 +119,7 @@ android {
                 //本机打包的时间
                 timeNow = getDate()
             }
-            outputFileName = "${variant.name}-${APP_VERSION}-${timeNow}.apk"
+            outputFileName = "${variant.name}-branch_${BRANCH}-${APP_VERSION}-${timeNow}.apk"
         }
     }
 }
