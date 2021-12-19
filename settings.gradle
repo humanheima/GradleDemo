@@ -1,1 +1,32 @@
-include ':app', ':library'
+gradle.addBuildListener(new BuildListener() {
+
+    @Override
+    void buildStarted(Gradle gradle) {
+        println("//开始构建")
+
+
+    }
+
+    @Override
+    void settingsEvaluated(Settings settings) {
+        println("//settings.gradle执行解析完毕")
+    }
+
+    @Override
+    void projectsLoaded(Gradle gradle) {
+        println("//Project初始化构造完成")
+    }
+
+    @Override
+    void projectsEvaluated(Gradle gradle) {
+        println("//所有Project的build.gradle执行解析完毕")
+
+    }
+
+    @Override
+    void buildFinished(BuildResult result) {
+        println("//构建结束")
+    }
+})
+
+include ':library' , ':app'

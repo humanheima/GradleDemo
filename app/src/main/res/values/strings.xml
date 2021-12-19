@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GradleDemo</string>
+    <string name="not_res_proguard">不混淆的资源</string>
 </resources>

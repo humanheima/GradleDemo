@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'AndResGuard'
 //apply plugin: 'com.dx168.fastdex'
 //编译时间
 def static buildTime() {
@@ -24,6 +25,50 @@ static def getDate() {
     return "local_time" + formattedDate
 }
 
+andResGuard {
+    mappingFile = file("./resource_mapping.txt")
+    //mappingFile = null
+    use7zip = true
+    useSign = true
+    // It will keep the origin path of your resources when it's true
+    keepRoot = false
+    // If set, name column in arsc those need to proguard will be kept to this value
+    fixedResName = "arg"
+    // It will merge the duplicated resources, but don't rely on this feature too much.
+    // it's always better to remove duplicated resource from repo
+    mergeDuplicatedRes = true
+    whiteList = [
+            // your icon
+            "R.mipmap.ic_launcher",
+            //"R.drawable.icon",
+            // for fabric
+            "R.string.com.crashlytics.*",
+            "R.string.not_res_proguard",
+    ]
+    compressFilePattern = [
+            "*.png",
+            "*.jpg",
+            "*.jpeg",
+            "*.gif",
+    ]
+    sevenzip {
+        artifact = 'com.tencent.mm:SevenZip:1.2.21'
+        //path = "/usr/local/bin/7za"
+    }
+
+    /**
+     * Optional: if finalApkBackupPath is null, AndResGuard will overwrite final apk
+     * to the path which assemble[Task] write to
+     **/
+    // finalApkBackupPath = "${project.rootDir}/final.apk"
+
+    /**
+     * Optional: Specifies the name of the message digest algorithm to user when digesting the entries of JAR file
+     * Only works in V1signing, default value is "SHA-1"
+     **/
+    // digestalg = "SHA-256"
+}
+
 android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -41,6 +86,7 @@ android {
 
     signingConfigs {
         release {
+            //读取gradle.properties的属性
             storeFile file(STORE_FILE)
             storePassword STORE_PASSWORD
             keyAlias KEY_ALIAS
@@ -113,7 +159,7 @@ android {
             def branchName
             int lastSplit = BRANCH.lastIndexOf("/")
             if (lastSplit != -1) {
-                branchName = BRANCH.substring(lastSplit+1)
+                branchName = BRANCH.substring(lastSplit + 1)
             } else {
                 branchName = BRANCH
             }

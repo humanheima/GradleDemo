@@ -113,6 +113,13 @@ adb shell dumpsys dropbox data_app_anr --print > anr.txt
 * [Mac 环境下 Android 使用Jenkins 构建自动化打包](https://blog.csdn.net/u011418943/article/details/108131146)
 
 
+### AndResGuard
+
+How to Launch
+
+If you are using Android Studio, you can find the generate task option in andresguard group. Or alternatively, you run ./gradlew resguard[BuildType | Flavor] in your terminal. The format of task name is as same as assemble.
+
+
 
 
 
