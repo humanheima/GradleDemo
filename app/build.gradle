@@ -82,6 +82,12 @@ android {
         resValue "string", "build_time", buildTime()
         resValue "string", "build_host", hostName()
         resValue "string", "build_revision", revision()
+
+        Map<String, ?> params = rootProject.properties
+
+        params.eachWithIndex { Map.Entry<String, ?> entry, int i ->
+            println("key = " + entry.key + ", value = " + entry.value)
+        }
     }
 
     signingConfigs {
