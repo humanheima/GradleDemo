@@ -1,6 +1,9 @@
 // 获取从Jenkins 传递过来的参数
+
+
 /**
- * gradle -PBRANCH=origin/learn_and_review -PBUILD_TYPE=Debug -PPRODUCT_FLAVOR=mi -PIS_JENKINS=true -PBUILD_TIME=2022-01-06-16:48:38 -PAPP_VERSION=2.0.0
+ *  Jenkins 执行 shell脚本，运行下面的命令，可以获取这些属性。
+ * /Users/xmly/.gradle/wrapper/dists/gradle-6.5-all/2oz4ud9k3tuxjg84bbf55q0tn/gradle-6.5/bin/gradle -PBRANCH=origin/learn_and_review -PBUILD_TYPE=Release $'-PtestParams=\346\265\213\350\257\225' -PPRODUCT_FLAVOR=mi -PIS_JENKINS=true -PBUILD_TIME=2022-01-06-22:20:35 -PAPP_VERSION=2.0.0 clean assemblemiRelease
  */
 
 if (project.hasProperty('BUILD_TYPE')) {
@@ -33,7 +36,7 @@ if (project.hasProperty('APP_VERSION')) {
     println("project.property('APP_VERSION') =  " + project.property('APP_VERSION'))
 }
 
-if (project.hasProperty('PtestParams')) {
+if (project.hasProperty('testParams')) {
     rootProject.testParams = project.property('testParams')
     println("project.property('testParams') =  " + project.property('testParams'))
 }
