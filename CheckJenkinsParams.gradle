@@ -1,43 +1,36 @@
 // 获取从Jenkins 传递过来的参数
-
-ext{
-
-    BUILD_TYPE = "debug"
-    PRODUCT_FLAVOR ="mi"
-}
-
 /**
  * gradle -PBRANCH=origin/learn_and_review -PBUILD_TYPE=Debug -PPRODUCT_FLAVOR=mi -PIS_JENKINS=true -PBUILD_TIME=2022-01-06-16:48:38 -PAPP_VERSION=2.0.0
  */
 
-if (project.hasProperty('PBUILD_TYPE')) {
-    rootProject.BUILD_TYPE = project.property('PBUILD_TYPE')
-    println("project.property('PBUILD_TYPE') =  " + project.property('PBUILD_TYPE'))
+if (project.hasProperty('BUILD_TYPE')) {
+    rootProject.BUILD_TYPE = project.property('BUILD_TYPE')
+    println("project.property('BUILD_TYPE') =  " + project.property('BUILD_TYPE'))
 } else {
-    println("没有 project.property('PBUILD_TYPE')属性")
+    println("没有 project.property('BUILD_TYPE')属性")
 }
 
-if (project.hasProperty('PPRODUCT_FLAVOR')) {
-    rootProject.PRODUCT_FLAVOR = project.property('PPRODUCT_FLAVOR')
-    println("project.property('PPRODUCT_FLAVOR') =  " + project.property('PPRODUCT_FLAVOR'))
+if (project.hasProperty('PRODUCT_FLAVOR')) {
+    rootProject.PRODUCT_FLAVOR = project.property('PRODUCT_FLAVOR')
+    println("project.property('PRODUCT_FLAVOR') =  " + project.property('PRODUCT_FLAVOR'))
 } else {
     println("没有 project.property('PPRODUCT_FLAVOR') 这个属性")
 }
 
-if (project.hasProperty('PIS_JENKINS')) {
-    rootProject.PIS_JENKINS = project.property('PIS_JENKINS')
-    println("project.property('PIS_JENKINS') =  " + project.property('PIS_JENKINS'))
+if (project.hasProperty('IS_JENKINS')) {
+    rootProject.PIS_JENKINS = project.property('IS_JENKINS')
+    println("project.property('IS_JENKINS') =  " + project.property('IS_JENKINS'))
 
 }
 
-if (project.hasProperty('PBUILD_TIME')) {
-    rootProject.PBUILD_TIME = project.property('PBUILD_TIME')
-    println("project.property('PBUILD_TIME') =  " + project.property('PBUILD_TIME'))
+if (project.hasProperty('BUILD_TIME')) {
+    rootProject.PBUILD_TIME = project.property('BUILD_TIME')
+    println("project.property('BUILD_TIME') =  " + project.property('BUILD_TIME'))
 }
 
-if (project.hasProperty('PAPP_VERSION')) {
-    rootProject.PAPP_VERSION = project.property('PAPP_VERSION')
-    println("project.property('PAPP_VERSION') =  " + project.property('PAPP_VERSION'))
+if (project.hasProperty('APP_VERSION')) {
+    rootProject.PAPP_VERSION = project.property('APP_VERSION')
+    println("project.property('APP_VERSION') =  " + project.property('APP_VERSION'))
 }
 
 if (project.hasProperty('PBUILD_TYPE')) {
