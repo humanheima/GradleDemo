@@ -153,6 +153,7 @@ android {
 
     //重命名apk
     android.applicationVariants.all { variant ->
+        println("variant.name = " + variant.name)
         variant.outputs.all {
             //时间戳
             def timeNow

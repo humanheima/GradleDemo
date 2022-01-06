@@ -1,0 +1,50 @@
+// 获取从Jenkins 传递过来的参数
+
+ext{
+
+    BUILD_TYPE = "debug"
+    PRODUCT_FLAVOR ="mi"
+}
+
+/**
+ * gradle -PBRANCH=origin/learn_and_review -PBUILD_TYPE=Debug -PPRODUCT_FLAVOR=mi -PIS_JENKINS=true -PBUILD_TIME=2022-01-06-16:48:38 -PAPP_VERSION=2.0.0
+ */
+
+if (project.hasProperty('PBUILD_TYPE')) {
+    rootProject.BUILD_TYPE = project.property('PBUILD_TYPE')
+    println("project.property('PBUILD_TYPE') =  " + project.property('PBUILD_TYPE'))
+} else {
+    println("没有 project.property('PBUILD_TYPE')属性")
+}
+
+if (project.hasProperty('PPRODUCT_FLAVOR')) {
+    rootProject.PRODUCT_FLAVOR = project.property('PPRODUCT_FLAVOR')
+    println("project.property('PPRODUCT_FLAVOR') =  " + project.property('PPRODUCT_FLAVOR'))
+} else {
+    println("没有 project.property('PPRODUCT_FLAVOR') 这个属性")
+}
+
+if (project.hasProperty('PIS_JENKINS')) {
+    rootProject.PIS_JENKINS = project.property('PIS_JENKINS')
+    println("project.property('PIS_JENKINS') =  " + project.property('PIS_JENKINS'))
+
+}
+
+if (project.hasProperty('PBUILD_TIME')) {
+    rootProject.PBUILD_TIME = project.property('PBUILD_TIME')
+    println("project.property('PBUILD_TIME') =  " + project.property('PBUILD_TIME'))
+}
+
+if (project.hasProperty('PAPP_VERSION')) {
+    rootProject.PAPP_VERSION = project.property('PAPP_VERSION')
+    println("project.property('PAPP_VERSION') =  " + project.property('PAPP_VERSION'))
+}
+
+if (project.hasProperty('PBUILD_TYPE')) {
+    rootProject.PBUILD_TYPE = project.property('PBUILD_TYPE')
+    println("project.property('PBUILD_TYPE') =  " + project.property('PBUILD_TYPE'))
+}
+
+if (project.hasProperty('PtestParams')) {
+    println("project.property('PtestParams') =  " + project.property('PtestParams'))
+}
