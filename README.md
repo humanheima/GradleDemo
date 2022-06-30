@@ -119,7 +119,9 @@ How to Launch
 
 If you are using Android Studio, you can find the generate task option in andresguard group. Or alternatively, you run ./gradlew resguard[BuildType | Flavor] in your terminal. The format of task name is as same as assemble.
 
+### 自定义插件
 
+* [Android 自定义Gradle插件的3种方式](https://www.jianshu.com/p/f902b51e242b)  这篇文章写的最好。
 
 
 
