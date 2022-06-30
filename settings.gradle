@@ -30,3 +30,4 @@ gradle.addBuildListener(new BuildListener() {
 })
 
 include ':library' , ':app'
+include ':cus_plugin_one'
