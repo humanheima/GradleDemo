@@ -1,5 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 apply from: "CheckJenkinsParams.gradle"
+apply plugin: MyPlugin
 
 buildscript {
     repositories {
@@ -38,5 +39,80 @@ ext {
     targetSdkVersion = 27
     versionCode = 1
     versionName = "1.0"
+}
+
+class MyPlugin implements Plugin<Project> {
+    private Project mProject;
+
+    @Override
+    void apply(Project project) {
+        mProject = project;
+        //注册监听，以统计任务的耗时
+        project.gradle.addListener(new BuildTimeListener())
+    }
+}
+
+class BuildTimeListener implements TaskExecutionListener, BuildListener {
+
+    //用来记录 task 的执行时长信息
+    Map<String, TaskTimeInfo> taskTimeMap = new HashMap<>()
+
+    @Override
+    void buildStarted(Gradle gradle) {
+
+    }
+
+    @Override
+    void settingsEvaluated(Settings settings) {
+
+    }
+
+    @Override
+    void projectsLoaded(Gradle gradle) {
+
+    }
+
+    @Override
+    void projectsEvaluated(Gradle gradle) {
+
+    }
+
+    @Override
+    void buildFinished(BuildResult buildResult) {
+        println "-----------------打印所有的任务耗时开始----------------------"
+        println "---------------------------------------"
+        println "build finished, now println all task execution time:"
+        taskTimeMap.each { k, v -> println "${k}:[${v.total}ms]" }
+        println "---------------------------------------"
+        println "---------------------------------------"
+        println "-----------------打印所有的任务耗时结束----------------------"
+
+    }
+
+    @Override
+    void beforeExecute(Task task) {
+        //task开始执行之前搜集task的信息
+        TaskTimeInfo timeInfo = new TaskTimeInfo()
+        timeInfo.start = System.currentTimeMillis()
+        timeInfo.path = task.getPath()
+        taskTimeMap.put(task.getPath(), timeInfo)
+    }
+
+    @Override
+    void afterExecute(Task task, TaskState taskState) {
+        //task执行完之后，记录结束时的时间
+        TaskTimeInfo timeInfo = taskTimeMap.get(task.getPath())
+        timeInfo.end = System.currentTimeMillis()
+        //计算该 task 的执行时长
+        timeInfo.total = timeInfo.end - timeInfo.start
+    }
+
+    class TaskTimeInfo {
+        //task执行总时长
+        long total
+        String path
+        long start
+        long end
+    }
 }
 
