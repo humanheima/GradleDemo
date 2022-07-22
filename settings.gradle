@@ -31,3 +31,4 @@ gradle.addBuildListener(new BuildListener() {
 
 include ':library' , ':app'
 include ':cus_plugin_one'
+include ':asm_lifecycle_plugin'

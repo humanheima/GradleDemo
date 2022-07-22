@@ -5,6 +5,8 @@ apply plugin: 'AndResGuard'
 //引用完全自定义插件，名称就是插件模块META-INF/gradle-plugins/ 目录下 properties文件的名字
 apply plugin: 'com.example.plugin'
 
+apply plugin: 'com.example.asmplugin'
+
 //编译时间
 def static buildTime() {
     return new Date().format("yyyy-MM-dd HH:mm:ss")
