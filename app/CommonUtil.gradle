@@ -1,0 +1,9 @@
+
+//编译时间
+String buildTime() {
+    return new Date().format("yyyy-MM-dd HH:mm:ss")
+}
+
+ext {
+    buildTime = this.&buildTime
+}

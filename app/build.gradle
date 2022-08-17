@@ -7,10 +7,12 @@ apply plugin: 'com.example.plugin'
 
 apply plugin: 'com.example.asmplugin'
 
+apply from: 'CommonUtil.gradle'
 //编译时间
-def static buildTime() {
-    return new Date().format("yyyy-MM-dd HH:mm:ss")
-}
+//def static buildTime() {
+//    return new Date().format("yyyy-MM-dd HH:mm:ss")
+//}
+
 //编译机器
 def static hostName() {
     return System.getProperty("user.name") + "@" + InetAddress.localHost.hostName
@@ -75,6 +77,7 @@ andResGuard {
     // digestalg = "SHA-256"
 }
 
+println("buildTime = " + buildTime())
 android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
