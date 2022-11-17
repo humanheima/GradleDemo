@@ -1,5 +1,6 @@
 package com.example.plugin
 
+import groovy.io.FileType
 import com.android.build.api.transform.*
 import com.android.build.gradle.internal.pipeline.TransformManager
 
