@@ -4,13 +4,14 @@ apply plugin: MyPlugin
 
 buildscript {
     repositories {
-        jcenter()
-        google()
         maven {
             url uri('./repos') //指定本地maven的路径，在项目根目录下
         }
+        jcenter()
+        google()
     }
     dependencies {
+
         classpath 'com.android.tools.build:gradle:4.1.3'
         classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.21'
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.21'
@@ -54,15 +55,33 @@ class MyPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        mProject = project;
+        mProject = project
         //注册监听，以统计任务的耗时
-        project.gradle.addListener(new BuildTimeListener())
+        project.gradle.addListener(new BuildTimeListener(project))
+//        project.afterEvaluate {
+//            Set<Task> tasks = project.getTasksByName("mergeDebugAssets", true)
+//            if (tasks.isEmpty()) {
+//                println("apply processDebugResources 获取 mergeDebugAssets 没有该任务")
+//            } else {
+//                tasks.forEach {
+//                    println("apply processDebugResources 获取 mergeDebugAssets 任务名称 ${it.name} ,${it.path} ")
+//                }
+//            }
+//
+//        }
     }
+
 }
 
 class BuildTimeListener implements TaskExecutionListener, BuildListener {
 
-    //用来记录 task 的执行时长信息
+    Project project
+
+    BuildTimeListener(Project project) {
+        this.project = project
+    }
+
+//用来记录 task 的执行时长信息
     Map<String, TaskTimeInfo> taskTimeMap = new HashMap<>()
 
     @Override
@@ -82,18 +101,40 @@ class BuildTimeListener implements TaskExecutionListener, BuildListener {
 
     @Override
     void projectsEvaluated(Gradle gradle) {
+        Set<Task> copyProcessedResourcesTask = project.getTasksByName("copyProcessedResources", true)
+        if (copyProcessedResourcesTask.isEmpty()) {
+            println("afterExecute processDebugResources 获取 mergeDebugAssets 没有该任务")
+        } else {
+            copyProcessedResourcesTask.forEach {
+                if (it.path == ":app:copyProcessedResources") {
+                    it.setMustRunAfter(["processDebugResources"])
+                    println("afterExecute processDebugResources 获取 copyProcessedResources 任务名称 ${it.name} ,${it.path} ")
+                }
+            }
+        }
 
+        Set<Task> tasks = project.getTasksByName("mergeDebugAssets", true)
+        if (tasks.isEmpty()) {
+            println("afterExecute processDebugResources 获取 mergeDebugAssets 没有该任务")
+        } else {
+            tasks.forEach {
+                if (it.path == ":app:mergeDebugAssets") {
+                    it.setMustRunAfter(["processDebugResources", "copyProcessedResources"])
+                    println("afterExecute processDebugResources 获取 mergeDebugAssets 任务名称 ${it.name} ,${it.path} ")
+                }
+            }
+        }
     }
 
     @Override
     void buildFinished(BuildResult buildResult) {
-        println "-----------------打印所有的任务耗时开始----------------------"
-        println "---------------------------------------"
-        println "build finished, now println all task execution time:"
-        taskTimeMap.each { k, v -> println "${k}:[${v.total}ms]" }
-        println "---------------------------------------"
-        println "---------------------------------------"
-        println "-----------------打印所有的任务耗时结束----------------------"
+//        println "-----------------打印所有的任务耗时开始----------------------"
+//        println "---------------------------------------"
+//        println "build finished, now println all task execution time:"
+//        taskTimeMap.each { k, v -> println "${k}:[${v.total}ms]" }
+//        println "---------------------------------------"
+//        println "---------------------------------------"
+//        println "-----------------打印所有的任务耗时结束----------------------"
 
     }
 
@@ -104,6 +145,32 @@ class BuildTimeListener implements TaskExecutionListener, BuildListener {
         timeInfo.start = System.currentTimeMillis()
         timeInfo.path = task.getPath()
         taskTimeMap.put(task.getPath(), timeInfo)
+        def name = task.getName()
+//        println("beforeExecute task.getName() = " + name)
+//        println("beforeExecute task.getPath() = " + task.getPath())
+//        println("beforeExecute task.getTemporaryDir() = " + task.getTemporaryDir())
+//        def fileCollection = task.getInputs().getFiles()
+//        if (fileCollection.isEmpty()) {
+//            println("beforeExecute input file 没有输入文件")
+//        } else {
+//            fileCollection.forEach { it ->
+//                //println("beforeExecute input file " + it.getAbsolutePath())
+//                printlnDir("beforeExecute", name, it)
+//            }
+//        }
+        //println("beforeExecute task.getPath() = " + fileCollection)
+    }
+
+    private void printlnDir(String tag, String taskName, File file) {
+        if (file != null && file.isDirectory()) {
+            //printlnDir(tag,taskName,file)
+            File[] files = file.listFiles()
+            for (File childFile : files) {
+                printlnDir(tag, taskName, childFile)
+            }
+        } else {
+            println(tag + ", " + taskName + ", " + file.getAbsolutePath())
+        }
     }
 
     @Override
@@ -113,6 +180,34 @@ class BuildTimeListener implements TaskExecutionListener, BuildListener {
         timeInfo.end = System.currentTimeMillis()
         //计算该 task 的执行时长
         timeInfo.total = timeInfo.end - timeInfo.start
+        def fileCollection = task.getOutputs().getFiles()
+        def name = task.getName()
+        if (fileCollection.isEmpty()) {
+            println("afterExecute input file 没有输出文件")
+        } else {
+            fileCollection.forEach { it ->
+                printlnDir("afterExecute", name, it)
+            }
+        }
+
+
+        if (task.name == "processDebugResources" && task.path == ":app:processDebugResources") {
+            //在 mergeDebugAssets 任务之前替换assets目录下的 darkmode.7z
+
+
+        }
+
+//        if (name == "mergeDebugResources") {
+//            println("afterExecute task.getPath() = " + task.getPath())
+//            def fileCollection = task.getOutputs().getFiles()
+//            if (fileCollection.isEmpty()) {
+//                println("mergeDebugResources afterExecute input file 没有输出文件")
+//            } else {
+//                fileCollection.forEach {
+//                    println("mergeDebugResources afterExecute input file " + it.getAbsolutePath())
+//                }
+//            }
+//        }
     }
 
     class TaskTimeInfo {

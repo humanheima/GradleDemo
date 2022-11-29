@@ -1,17 +1,20 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
+
 apply plugin: 'com.android.application'
-apply plugin: 'AndResGuard'
+//apply plugin: 'AndResGuard'
 //apply plugin: 'com.dx168.fastdex'
 
 //引用完全自定义插件，名称就是插件模块META-INF/gradle-plugins/ 目录下 properties文件的名字
 apply plugin: 'com.example.plugin'
-
 //apply plugin: 'com.example.asmplugin'
 
 apply from: 'CommonUtil.gradle'
 //编译时间
-//def static buildTime() {
-//    return new Date().format("yyyy-MM-dd HH:mm:ss")
-//}
+def static buildTime() {
+    return new Date().format("yyyy-MM-dd HH:mm:ss")
+}
 
 //编译机器
 def static hostName() {
@@ -33,49 +36,51 @@ static def getDate() {
     return "local_time" + formattedDate
 }
 
-andResGuard {
-    mappingFile = file("./resource_mapping.txt")
-    //mappingFile = null
-    use7zip = true
-    useSign = true
-    // It will keep the origin path of your resources when it's true
-    keepRoot = false
-    // If set, name column in arsc those need to proguard will be kept to this value
-    fixedResName = "arg"
-    // It will merge the duplicated resources, but don't rely on this feature too much.
-    // it's always better to remove duplicated resource from repo
-    mergeDuplicatedRes = true
-    whiteList = [
-            // your icon
-            "R.mipmap.ic_launcher",
-            //"R.drawable.icon",
-            // for fabric
-            "R.string.com.crashlytics.*",
-            "R.string.not_res_proguard",
-    ]
-    compressFilePattern = [
-            "*.png",
-            "*.jpg",
-            "*.jpeg",
-            "*.gif",
-    ]
-    sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.2.21'
-        //path = "/usr/local/bin/7za"
-    }
+//
+//andResGuard {
+//    mappingFile = file("./resource_mapping.txt")
+//    //mappingFile = null
+//    use7zip = true
+//    useSign = true
+//    // It will keep the origin path of your resources when it's true
+//    keepRoot = false
+//    // If set, name column in arsc those need to proguard will be kept to this value
+//    fixedResName = "arg"
+//    // It will merge the duplicated resources, but don't rely on this feature too much.
+//    // it's always better to remove duplicated resource from repo
+//    mergeDuplicatedRes = true
+//    whiteList = [
+//            // your icon
+//            "R.mipmap.ic_launcher",
+//            //"R.drawable.icon",
+//            // for fabric
+//            "R.string.com.crashlytics.*",
+//            "R.string.not_res_proguard",
+//    ]
+//    compressFilePattern = [
+//            "*.png",
+//            "*.jpg",
+//            "*.jpeg",
+//            "*.gif",
+//    ]
+//    sevenzip {
+//        artifact = 'com.tencent.mm:SevenZip:1.2.21'
+//        //path = "/usr/local/bin/7za"
+//    }
+//
+//    /**
+//     * Optional: if finalApkBackupPath is null, AndResGuard will overwrite final apk
+//     * to the path which assemble[Task] write to
+//     **/
+//    // finalApkBackupPath = "${project.rootDir}/final.apk"
+//
+//    /**
+//     * Optional: Specifies the name of the message digest algorithm to user when digesting the entries of JAR file
+//     * Only works in V1signing, default value is "SHA-1"
+//     **/
+//    // digestalg = "SHA-256"
+//}
 
-    /**
-     * Optional: if finalApkBackupPath is null, AndResGuard will overwrite final apk
-     * to the path which assemble[Task] write to
-     **/
-    // finalApkBackupPath = "${project.rootDir}/final.apk"
-
-    /**
-     * Optional: Specifies the name of the message digest algorithm to user when digesting the entries of JAR file
-     * Only works in V1signing, default value is "SHA-1"
-     **/
-    // digestalg = "SHA-256"
-}
 
 println("buildTime = " + buildTime())
 android {
@@ -94,9 +99,9 @@ android {
 
         Map<String, ?> params = rootProject.properties
 
-        params.eachWithIndex { Map.Entry<String, ?> entry, int i ->
-            println("key = " + entry.key + ", value = " + entry.value)
-        }
+//        params.eachWithIndex { Map.Entry<String, ?> entry, int i ->
+//            println("key = " + entry.key + ", value = " + entry.value)
+//        }
     }
 
     signingConfigs {
@@ -151,20 +156,20 @@ android {
      *
      * 产品变种 + 构建类型 构建出来的就是构建变体
      */
-    productFlavors {
-        huawei {
-            dimension "tier"
-            applicationId "com.hm.huaweigradledemo"
-        }
-        mi {
-            dimension "tier"
-            applicationId "com.hm.migradledemo"
-        }
-        productFlavors.all {
-                //您可以在构建变体配置中为清单文件中的某些属性指定值，替换AndroidManifest.xml中的CHANNEL_NAME
-            flavor -> flavor.manifestPlaceholders = [CHANNEL_NAME: name]
-        }
-    }
+//    productFlavors {
+//        huawei {
+//            dimension "tier"
+//            applicationId "com.hm.huaweigradledemo"
+//        }
+//        mi {
+//            dimension "tier"
+//            applicationId "com.hm.migradledemo"
+//        }
+//        productFlavors.all {
+//                //您可以在构建变体配置中为清单文件中的某些属性指定值，替换AndroidManifest.xml中的CHANNEL_NAME
+//            flavor -> flavor.manifestPlaceholders = [CHANNEL_NAME: name]
+//        }
+//    }
 
     //重命名apk
     android.applicationVariants.all { variant ->
@@ -191,6 +196,140 @@ android {
             outputFileName = "${variant.name}-branch_${branchName}-${APP_VERSION}-${timeNow}.apk"
         }
     }
+}
+
+/**
+ * 解压7z文件
+ * @param srcDirPath
+ * @param outZipPath
+ * @param sevenZipPath
+ * @throws IOException* @throws InterruptedException
+ */
+def static extract7z(String srcFilePath, String outZipPath, String sevenZipPath)
+        throws IOException, InterruptedException {
+    ProcessBuilder pb = new ProcessBuilder([sevenZipPath, "x", srcFilePath, "-o" + outZipPath])
+    Process process = pb.start()
+
+    InputStreamReader ir = new InputStreamReader(process.getInputStream());
+    LineNumberReader input = new LineNumberReader(ir)
+    String line;
+    while ((line = input.readLine()) != null) {
+        println("extract7z：" + input.getLineNumber() + ":" + line);
+    }
+    process.waitFor()
+    process.destroy()
+}
+
+/**
+ * 这个task用来替换assets目录下的darkmode.7z
+ */
+task copyProcessedResources() {
+    def resCompiledDirPath = "$project.buildDir/intermediates/processed_res/debug/out"
+    def resCompiledFilePath = "$resCompiledDirPath/resources-debug.ap_"
+    File resFile = new File(resCompiledFilePath)
+    if (!resFile.exists()) {
+        println("copyProcessedResources path:$resCompiledFilePath not exist")
+        return
+    } else {
+        println("copyProcessedResources path:$resCompiledFilePath")
+    }
+
+    //存放编译后的资源
+    File destFile = new File("${project.rootDir}/app/src/main/assets/compliedRes")
+    if (!destFile.exists()) {
+        destFile.mkdirs()
+    }
+    println("copyProcessedResources ${destFile.absolutePath}")
+
+    ant.unzip(src: resCompiledFilePath, dest: destFile)
+
+    def oldDarkModeFile = "${project.rootDir}/app/src/main/assets/darkmode.7z"
+    //在assets目录下新建 newSkin 文件夹
+    String newSkinDir = "${project.rootDir}/app/src/main/assets/newSkin"
+
+    File file = new File(newSkinDir)
+    file.deleteDir()
+    file.mkdirs()
+
+    println("copyProcessedResources oldDarkModeFile = " + oldDarkModeFile)
+    println("copyProcessedResources newSkinDir = " + newSkinDir)
+
+    ProcessBuilder pb = new ProcessBuilder(["which", "7z"])
+    String sevenZipPath = ""
+    try {
+        Process process = pb.start();
+        InputStreamReader ir = new InputStreamReader(process.getInputStream());
+        LineNumberReader input = new LineNumberReader(ir)
+        String tmp;
+        while ((tmp = input.readLine()) != null) {
+            if (tmp.endsWith(File.separator + "7z")) {
+                sevenZipPath = tmp
+                println("do7zipCompressApk 7zip path:" + sevenZipPath)
+                break
+            }
+        }
+        process.waitFor();
+        process.destroy();
+    } catch (Exception e) {
+        println("do7zipCompressApk not found 7zip path: " + e.getMessage())
+        return
+    }
+
+    try {
+        //把老的皮肤包解压到 newSkinDir 目录下
+        extract7z(oldDarkModeFile, file.getAbsolutePath(), sevenZipPath)
+    } catch (Exception ep) {
+        println("extract7z error: " + ep.getMessage())
+    }
+
+    // 1. 把compliedRes/res/color-night-v8下面的文件都拷贝到 newSkin/color 目录下，直接替换
+
+    File colorNightV8Dir = new File(destFile.getAbsolutePath() + File.separator + "res/color")
+    //File colorNightV8Dir = new File(destFile.getAbsolutePath()+File.separator+"res/color-night-v8")
+
+    if (colorNightV8Dir.exists() && colorNightV8Dir.isDirectory()) {
+        println("----开始拷贝颜色-----")
+        File[] colorFiles = colorNightV8Dir.listFiles()
+        for (File colorFile : colorFiles) {
+            String fileName = colorFile.getName()
+            File destColorFile = new File("${newSkinDir}/color", fileName)
+            println("copy color file " + colorFile.getAbsolutePath() + "\n to " + destColorFile.getAbsolutePath())
+            Files.copy(Paths.get(colorFile.getAbsolutePath()), Paths.get(destColorFile.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING)
+        }
+        println("----拷贝颜色结束-----")
+    }
+
+    // 2. 把 newSkin 打包成 darkmodeNew.7z
+
+    String darkModeNew7zPath = "${project.rootDir}/app/src/main/assets/darkModeNew.7z"
+    package7z(newSkinDir, darkModeNew7zPath, sevenZipPath)
+
+    // 3. 把 darkmode.7z 删除
+
+    // 4. 把 darkmodeNew.7z 重命名为 darkmode.7z
+}
+
+/**
+ * 将文件压缩成7z文件
+ * @param srcDirPath
+ * @param outZipPath
+ * @param sevenZipPath
+ * @throws IOException* @throws InterruptedException
+ */
+def static package7z(String srcFilePath, String outZipPath, String sevenZipPath)
+        throws IOException, InterruptedException {
+    //将 srcFilePath 目录下的所有文件（不包括 srcFilePath 目录） 压缩到 outZipPath。
+    ProcessBuilder pb = new ProcessBuilder([sevenZipPath, "a", "-t7z", outZipPath, srcFilePath + File.separator + "*", "-mx5"])
+    Process process = pb.start()
+
+    InputStreamReader ir = new InputStreamReader(process.getInputStream());
+    LineNumberReader input = new LineNumberReader(ir)
+    String line;
+    while ((line = input.readLine()) != null) {
+        println("package7z：" + input.getLineNumber() + ":" + line);
+    }
+    process.waitFor()
+    process.destroy()
 }
 
 dependencies {
