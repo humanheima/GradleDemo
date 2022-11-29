@@ -50,11 +50,11 @@ ext {
     versionName = "1.0"
 }
 
-class MyPlugin implements Plugin<Project> {
-    private Project mProject;
+class MyPlugin implements org.gradle.api.Plugin<org.gradle.api.Project> {
+    private org.gradle.api.Project mProject
 
     @Override
-    void apply(Project project) {
+    void apply(org.gradle.api.Project project) {
         mProject = project
         //注册监听，以统计任务的耗时
         project.gradle.addListener(new BuildTimeListener(project))
@@ -73,11 +73,11 @@ class MyPlugin implements Plugin<Project> {
 
 }
 
-class BuildTimeListener implements TaskExecutionListener, BuildListener {
+class BuildTimeListener implements org.gradle.api.execution.TaskExecutionListener, org.gradle.BuildListener {
 
-    Project project
+    org.gradle.api.Project project
 
-    BuildTimeListener(Project project) {
+    BuildTimeListener(org.gradle.api.Project project) {
         this.project = project
     }
 
@@ -85,49 +85,55 @@ class BuildTimeListener implements TaskExecutionListener, BuildListener {
     Map<String, TaskTimeInfo> taskTimeMap = new HashMap<>()
 
     @Override
-    void buildStarted(Gradle gradle) {
+    void buildStarted(org.gradle.api.invocation.Gradle gradle) {
 
     }
 
     @Override
-    void settingsEvaluated(Settings settings) {
+    void settingsEvaluated(org.gradle.api.initialization.Settings settings) {
 
     }
 
     @Override
-    void projectsLoaded(Gradle gradle) {
+    void projectsLoaded(org.gradle.api.invocation.Gradle gradle) {
 
     }
 
     @Override
-    void projectsEvaluated(Gradle gradle) {
-        Set<Task> copyProcessedResourcesTask = project.getTasksByName("copyProcessedResources", true)
+    void projectsEvaluated(org.gradle.api.invocation.Gradle gradle) {
+
+        Set<org.gradle.api.Task> processDebugResourcesTask = project.getTasksByName("processDebugResources", true)
+
+        Set<org.gradle.api.Task> copyProcessedResourcesTask = project.getTasksByName("copyProcessedResources", true)
         if (copyProcessedResourcesTask.isEmpty()) {
-            println("afterExecute processDebugResources 获取 mergeDebugAssets 没有该任务")
+            println("projectsEvaluated copyProcessedResourcesTask 没有该任务")
         } else {
-            copyProcessedResourcesTask.forEach {
-                if (it.path == ":app:copyProcessedResources") {
-                    it.setMustRunAfter(["processDebugResources"])
-                    println("afterExecute processDebugResources 获取 copyProcessedResources 任务名称 ${it.name} ,${it.path} ")
+            if (!processDebugResourcesTask.isEmpty()) {
+                processDebugResourcesTask.forEach {
+                    println("projectsEvaluated processDebugResourcesTask 任务名称：${it.name} , 路径：${it.path} ")
                 }
+            }
+            copyProcessedResourcesTask.forEach {
+                it.dependsOn(processDebugResourcesTask)
+                println("projectsEvaluated copyProcessedResourcesTask 任务名称：${it.name} , 路径：${it.path} ")
             }
         }
 
-        Set<Task> tasks = project.getTasksByName("mergeDebugAssets", true)
+        Set<org.gradle.api.Task> tasks = project.getTasksByName("mergeDebugAssets", true)
         if (tasks.isEmpty()) {
-            println("afterExecute processDebugResources 获取 mergeDebugAssets 没有该任务")
+            println("projectsEvaluated  获取 mergeDebugAssets 没有该任务")
         } else {
             tasks.forEach {
                 if (it.path == ":app:mergeDebugAssets") {
-                    it.setMustRunAfter(["processDebugResources", "copyProcessedResources"])
-                    println("afterExecute processDebugResources 获取 mergeDebugAssets 任务名称 ${it.name} ,${it.path} ")
+                    it.dependsOn(processDebugResourcesTask, copyProcessedResourcesTask)
+                    println("projectsEvaluated 获取 mergeDebugAssets 任务名称：${it.name} , 路径：${it.path} ")
                 }
             }
         }
     }
 
     @Override
-    void buildFinished(BuildResult buildResult) {
+    void buildFinished(org.gradle.BuildResult buildResult) {
 //        println "-----------------打印所有的任务耗时开始----------------------"
 //        println "---------------------------------------"
 //        println "build finished, now println all task execution time:"
@@ -139,7 +145,7 @@ class BuildTimeListener implements TaskExecutionListener, BuildListener {
     }
 
     @Override
-    void beforeExecute(Task task) {
+    void beforeExecute(org.gradle.api.Task task) {
         //task开始执行之前搜集task的信息
         TaskTimeInfo timeInfo = new TaskTimeInfo()
         timeInfo.start = System.currentTimeMillis()
@@ -174,7 +180,7 @@ class BuildTimeListener implements TaskExecutionListener, BuildListener {
     }
 
     @Override
-    void afterExecute(Task task, TaskState taskState) {
+    void afterExecute(org.gradle.api.Task task, org.gradle.api.tasks.TaskState taskState) {
         //task执行完之后，记录结束时的时间
         TaskTimeInfo timeInfo = taskTimeMap.get(task.getPath())
         timeInfo.end = System.currentTimeMillis()
@@ -182,20 +188,20 @@ class BuildTimeListener implements TaskExecutionListener, BuildListener {
         timeInfo.total = timeInfo.end - timeInfo.start
         def fileCollection = task.getOutputs().getFiles()
         def name = task.getName()
-        if (fileCollection.isEmpty()) {
-            println("afterExecute input file 没有输出文件")
-        } else {
-            fileCollection.forEach { it ->
-                printlnDir("afterExecute", name, it)
-            }
-        }
+//        if (fileCollection.isEmpty()) {
+//            println("afterExecute input file 没有输出文件")
+//        } else {
+//            fileCollection.forEach { it ->
+//                printlnDir("afterExecute", name, it)
+//            }
+//        }
 
 
-        if (task.name == "processDebugResources" && task.path == ":app:processDebugResources") {
-            //在 mergeDebugAssets 任务之前替换assets目录下的 darkmode.7z
+        //if (task.name == "processDebugResources" && task.path == ":app:processDebugResources") {
+        //在 mergeDebugAssets 任务之前替换assets目录下的 darkmode.7z
 
 
-        }
+        //}
 
 //        if (name == "mergeDebugResources") {
 //            println("afterExecute task.getPath() = " + task.getPath())

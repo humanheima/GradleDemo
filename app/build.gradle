@@ -3,7 +3,7 @@ import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 
 apply plugin: 'com.android.application'
-//apply plugin: 'AndResGuard'
+apply plugin: 'AndResGuard'
 //apply plugin: 'com.dx168.fastdex'
 
 //引用完全自定义插件，名称就是插件模块META-INF/gradle-plugins/ 目录下 properties文件的名字
@@ -36,50 +36,49 @@ static def getDate() {
     return "local_time" + formattedDate
 }
 
-//
-//andResGuard {
-//    mappingFile = file("./resource_mapping.txt")
-//    //mappingFile = null
-//    use7zip = true
-//    useSign = true
-//    // It will keep the origin path of your resources when it's true
-//    keepRoot = false
-//    // If set, name column in arsc those need to proguard will be kept to this value
-//    fixedResName = "arg"
-//    // It will merge the duplicated resources, but don't rely on this feature too much.
-//    // it's always better to remove duplicated resource from repo
-//    mergeDuplicatedRes = true
-//    whiteList = [
-//            // your icon
-//            "R.mipmap.ic_launcher",
-//            //"R.drawable.icon",
-//            // for fabric
-//            "R.string.com.crashlytics.*",
-//            "R.string.not_res_proguard",
-//    ]
-//    compressFilePattern = [
-//            "*.png",
-//            "*.jpg",
-//            "*.jpeg",
-//            "*.gif",
-//    ]
-//    sevenzip {
-//        artifact = 'com.tencent.mm:SevenZip:1.2.21'
-//        //path = "/usr/local/bin/7za"
-//    }
-//
-//    /**
-//     * Optional: if finalApkBackupPath is null, AndResGuard will overwrite final apk
-//     * to the path which assemble[Task] write to
-//     **/
-//    // finalApkBackupPath = "${project.rootDir}/final.apk"
-//
-//    /**
-//     * Optional: Specifies the name of the message digest algorithm to user when digesting the entries of JAR file
-//     * Only works in V1signing, default value is "SHA-1"
-//     **/
-//    // digestalg = "SHA-256"
-//}
+andResGuard {
+    mappingFile = file("./resource_mapping.txt")
+    //mappingFile = null
+    use7zip = true
+    useSign = true
+    // It will keep the origin path of your resources when it's true
+    keepRoot = false
+    // If set, name column in arsc those need to proguard will be kept to this value
+    fixedResName = "arg"
+    // It will merge the duplicated resources, but don't rely on this feature too much.
+    // it's always better to remove duplicated resource from repo
+    mergeDuplicatedRes = true
+    whiteList = [
+            // your icon
+            "R.mipmap.ic_launcher",
+            //"R.drawable.icon",
+            // for fabric
+            "R.string.com.crashlytics.*",
+            "R.string.not_res_proguard",
+    ]
+    compressFilePattern = [
+            "*.png",
+            "*.jpg",
+            "*.jpeg",
+            "*.gif",
+    ]
+    sevenzip {
+        artifact = 'com.tencent.mm:SevenZip:1.2.21'
+        //path = "/usr/local/bin/7za"
+    }
+
+    /**
+     * Optional: if finalApkBackupPath is null, AndResGuard will overwrite final apk
+     * to the path which assemble[Task] write to
+     **/
+    // finalApkBackupPath = "${project.rootDir}/final.apk"
+
+    /**
+     * Optional: Specifies the name of the message digest algorithm to user when digesting the entries of JAR file
+     * Only works in V1signing, default value is "SHA-1"
+     **/
+    // digestalg = "SHA-256"
+}
 
 
 println("buildTime = " + buildTime())
@@ -223,7 +222,10 @@ def static extract7z(String srcFilePath, String outZipPath, String sevenZipPath)
 /**
  * 这个task用来替换assets目录下的darkmode.7z
  */
-task copyProcessedResources() {
+def copyProcessedResourcesTask = task("copyProcessedResources")
+
+copyProcessedResourcesTask.doLast {
+
     def resCompiledDirPath = "$project.buildDir/intermediates/processed_res/debug/out"
     def resCompiledFilePath = "$resCompiledDirPath/resources-debug.ap_"
     File resFile = new File(resCompiledFilePath)
@@ -307,6 +309,7 @@ task copyProcessedResources() {
     // 3. 把 darkmode.7z 删除
 
     // 4. 把 darkmodeNew.7z 重命名为 darkmode.7z
+
 }
 
 /**
