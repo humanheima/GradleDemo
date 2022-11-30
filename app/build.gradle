@@ -7,10 +7,19 @@ apply plugin: 'AndResGuard'
 //apply plugin: 'com.dx168.fastdex'
 
 //引用完全自定义插件，名称就是插件模块META-INF/gradle-plugins/ 目录下 properties文件的名字
-apply plugin: 'com.example.plugin'
+//apply plugin: 'com.example.plugin'
 //apply plugin: 'com.example.asmplugin'
 
 apply from: 'CommonUtil.gradle'
+
+apply plugin: MyPlugin
+
+apply plugin: 'ReplaceAssetsPlugin'
+
+ReplaceAssetsExt {
+
+    enable = true
+}
 //编译时间
 def static buildTime() {
     return new Date().format("yyyy-MM-dd HH:mm:ss")
@@ -79,6 +88,8 @@ andResGuard {
      **/
     // digestalg = "SHA-256"
 }
+
+
 
 
 println("buildTime = " + buildTime())
@@ -227,126 +238,126 @@ android {
  * @param sevenZipPath
  * @throws IOException* @throws InterruptedException
  */
-def static extract7z(String srcFilePath, String outZipPath, String sevenZipPath)
-        throws IOException, InterruptedException {
-    ProcessBuilder pb = new ProcessBuilder([sevenZipPath, "x", srcFilePath, "-o" + outZipPath])
-    Process process = pb.start()
-
-    InputStreamReader ir = new InputStreamReader(process.getInputStream());
-    LineNumberReader input = new LineNumberReader(ir)
-    String line;
-    while ((line = input.readLine()) != null) {
-        println("extract7z：" + input.getLineNumber() + ":" + line);
-    }
-    process.waitFor()
-    process.destroy()
-}
+//def static extract7z(String srcFilePath, String outZipPath, String sevenZipPath)
+//        throws IOException, InterruptedException {
+//    ProcessBuilder pb = new ProcessBuilder([sevenZipPath, "x", srcFilePath, "-o" + outZipPath])
+//    Process process = pb.start()
+//
+//    InputStreamReader ir = new InputStreamReader(process.getInputStream());
+//    LineNumberReader input = new LineNumberReader(ir)
+//    String line;
+//    while ((line = input.readLine()) != null) {
+//        println("extract7z：" + input.getLineNumber() + ":" + line);
+//    }
+//    process.waitFor()
+//    process.destroy()
+//}
 
 /**
  * 这个task用来替换assets目录下的darkmode.7z
  */
-def copyProcessedResourcesTask = task("copyProcessedResources")
+//def copyProcessedResourcesTask = task("copyProcessedResources")
+//
+//copyProcessedResourcesTask.actions.add(new Action<Task>() {
+//
+//    @Override
+//    void execute(org.gradle.api.Task task) {
+//        //在配置阶段不会执行，只有在执行阶段才执行
+//        println("copyProcessedResourcesTask 添加action，在配置阶段会执行吗？不会。")
+//        generateDarkMode()
+//    }
+//})
+//copyProcessedResourcesTask.actions.forEach {
+//    println("copyProcessedResourcesTask 的 action : ${it.toString()}")
+//}
 
-copyProcessedResourcesTask.actions.add(new Action<Task>() {
-
-    @Override
-    void execute(org.gradle.api.Task task) {
-        //在配置阶段不会执行，只有在执行阶段才执行
-        println("copyProcessedResourcesTask 添加action，在配置阶段会执行吗？不会。")
-        generateDarkMode()
-    }
-})
-copyProcessedResourcesTask.actions.forEach {
-    println("copyProcessedResourcesTask 的 action : ${it.toString()}")
-}
-
-def generateDarkMode() {
-
-    def resCompiledDirPath = "$project.buildDir/intermediates/processed_res/debug/out"
-    def resCompiledFilePath = "$resCompiledDirPath/resources-debug.ap_"
-    File resFile = new File(resCompiledFilePath)
-    if (!resFile.exists()) {
-        println("copyProcessedResources path:$resCompiledFilePath not exist")
-        return
-    } else {
-        println("copyProcessedResources path:$resCompiledFilePath")
-    }
-
-    //存放编译后的资源
-    File destFile = new File("${project.rootDir}/app/src/main/assets/compliedRes")
-    if (!destFile.exists()) {
-        destFile.mkdirs()
-    }
-    println("copyProcessedResources ${destFile.absolutePath}")
-
-    ant.unzip(src: resCompiledFilePath, dest: destFile)
-
-    def oldDarkModeFile = "${project.rootDir}/app/src/main/assets/darkmode.7z"
-    //在assets目录下新建 newSkin 文件夹
-    String newSkinDir = "${project.rootDir}/app/src/main/assets/newSkin"
-
-    File file = new File(newSkinDir)
-    file.deleteDir()
-    file.mkdirs()
-
-    println("copyProcessedResources oldDarkModeFile = " + oldDarkModeFile)
-    println("copyProcessedResources newSkinDir = " + newSkinDir)
-
-    ProcessBuilder pb = new ProcessBuilder(["which", "7z"])
-    String sevenZipPath = ""
-    try {
-        Process process = pb.start();
-        InputStreamReader ir = new InputStreamReader(process.getInputStream());
-        LineNumberReader input = new LineNumberReader(ir)
-        String tmp
-        while ((tmp = input.readLine()) != null) {
-            if (tmp.endsWith(File.separator + "7z")) {
-                sevenZipPath = tmp
-                println("do7zipCompressApk 7zip path:" + sevenZipPath)
-                break
-            }
-        }
-        process.waitFor();
-        process.destroy();
-    } catch (Exception e) {
-        println("do7zipCompressApk not found 7zip path: " + e.getMessage())
-        return
-    }
-
-    try {
-        //把老的皮肤包解压到 newSkinDir 目录下
-        extract7z(oldDarkModeFile, file.getAbsolutePath(), sevenZipPath)
-    } catch (Exception ep) {
-        println("extract7z error: " + ep.getMessage())
-    }
-
-    // 1. 把compliedRes/res/color-night-v8下面的文件都拷贝到 newSkin/color 目录下，直接替换
-
-    File colorNightV8Dir = new File(destFile.getAbsolutePath() + File.separator + "res/color")
-    //File colorNightV8Dir = new File(destFile.getAbsolutePath()+File.separator+"res/color-night-v8")
-
-    if (colorNightV8Dir.exists() && colorNightV8Dir.isDirectory()) {
-        println("----开始拷贝颜色-----")
-        File[] colorFiles = colorNightV8Dir.listFiles()
-        for (File colorFile : colorFiles) {
-            String fileName = colorFile.getName()
-            File destColorFile = new File("${newSkinDir}/color", fileName)
-            println("copy color file " + colorFile.getAbsolutePath() + "\n to " + destColorFile.getAbsolutePath())
-            Files.copy(Paths.get(colorFile.getAbsolutePath()), Paths.get(destColorFile.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING)
-        }
-        println("----拷贝颜色结束-----")
-    }
-
-    // 2. 把 newSkin 打包成 darkmodeNew.7z
-
-    String darkModeNew7zPath = "${project.rootDir}/app/src/main/assets/darkModeNew.7z"
-    package7z(newSkinDir, darkModeNew7zPath, sevenZipPath)
-
-    // 3. 把 darkmode.7z 删除
-
-    // 4. 把 darkmodeNew.7z 重命名为 darkmode.7z
-
-}
+//def generateDarkMode() {
+//
+//    def resCompiledDirPath = "$project.buildDir/intermediates/processed_res/debug/out"
+//    def resCompiledFilePath = "$resCompiledDirPath/resources-debug.ap_"
+//    File resFile = new File(resCompiledFilePath)
+//    if (!resFile.exists()) {
+//        println("copyProcessedResources path:$resCompiledFilePath not exist")
+//        return
+//    } else {
+//        println("copyProcessedResources path:$resCompiledFilePath")
+//    }
+//
+//    //存放编译后的资源
+//    File destFile = new File("${project.rootDir}/app/src/main/assets/compliedRes")
+//    if (!destFile.exists()) {
+//        destFile.mkdirs()
+//    }
+//    println("copyProcessedResources ${destFile.absolutePath}")
+//
+//    ant.unzip(src: resCompiledFilePath, dest: destFile)
+//
+//    def oldDarkModeFile = "${project.rootDir}/app/src/main/assets/darkmode.7z"
+//    //在assets目录下新建 newSkin 文件夹
+//    String newSkinDir = "${project.rootDir}/app/src/main/assets/newSkin"
+//
+//    File file = new File(newSkinDir)
+//    file.deleteDir()
+//    file.mkdirs()
+//
+//    println("copyProcessedResources oldDarkModeFile = " + oldDarkModeFile)
+//    println("copyProcessedResources newSkinDir = " + newSkinDir)
+//
+//    ProcessBuilder pb = new ProcessBuilder(["which", "7z"])
+//    String sevenZipPath = ""
+//    try {
+//        Process process = pb.start();
+//        InputStreamReader ir = new InputStreamReader(process.getInputStream());
+//        LineNumberReader input = new LineNumberReader(ir)
+//        String tmp
+//        while ((tmp = input.readLine()) != null) {
+//            if (tmp.endsWith(File.separator + "7z")) {
+//                sevenZipPath = tmp
+//                println("do7zipCompressApk 7zip path:" + sevenZipPath)
+//                break
+//            }
+//        }
+//        process.waitFor();
+//        process.destroy();
+//    } catch (Exception e) {
+//        println("do7zipCompressApk not found 7zip path: " + e.getMessage())
+//        return
+//    }
+//
+//    try {
+//        //把老的皮肤包解压到 newSkinDir 目录下
+//        extract7z(oldDarkModeFile, file.getAbsolutePath(), sevenZipPath)
+//    } catch (Exception ep) {
+//        println("extract7z error: " + ep.getMessage())
+//    }
+//
+//    // 1. 把compliedRes/res/color-night-v8下面的文件都拷贝到 newSkin/color 目录下，直接替换
+//
+//    File colorNightV8Dir = new File(destFile.getAbsolutePath() + File.separator + "res/color")
+//    //File colorNightV8Dir = new File(destFile.getAbsolutePath()+File.separator+"res/color-night-v8")
+//
+//    if (colorNightV8Dir.exists() && colorNightV8Dir.isDirectory()) {
+//        println("----开始拷贝颜色-----")
+//        File[] colorFiles = colorNightV8Dir.listFiles()
+//        for (File colorFile : colorFiles) {
+//            String fileName = colorFile.getName()
+//            File destColorFile = new File("${newSkinDir}/color", fileName)
+//            println("copy color file " + colorFile.getAbsolutePath() + "\n to " + destColorFile.getAbsolutePath())
+//            Files.copy(Paths.get(colorFile.getAbsolutePath()), Paths.get(destColorFile.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING)
+//        }
+//        println("----拷贝颜色结束-----")
+//    }
+//
+//    // 2. 把 newSkin 打包成 darkmodeNew.7z
+//
+//    String darkModeNew7zPath = "${project.rootDir}/app/src/main/assets/darkModeNew.7z"
+//    package7z(newSkinDir, darkModeNew7zPath, sevenZipPath)
+//
+//    // 3. 把 darkmode.7z 删除
+//
+//    // 4. 把 darkmodeNew.7z 重命名为 darkmode.7z
+//
+//}
 
 /**
  * 将文件压缩成7z文件
@@ -355,21 +366,21 @@ def generateDarkMode() {
  * @param sevenZipPath
  * @throws IOException* @throws InterruptedException
  */
-def static package7z(String srcFilePath, String outZipPath, String sevenZipPath)
-        throws IOException, InterruptedException {
-    //将 srcFilePath 目录下的所有文件（不包括 srcFilePath 目录） 压缩到 outZipPath。
-    ProcessBuilder pb = new ProcessBuilder([sevenZipPath, "a", "-t7z", outZipPath, srcFilePath + File.separator + "*", "-mx5"])
-    Process process = pb.start()
-
-    InputStreamReader ir = new InputStreamReader(process.getInputStream());
-    LineNumberReader input = new LineNumberReader(ir)
-    String line;
-    while ((line = input.readLine()) != null) {
-        println("package7z：" + input.getLineNumber() + ":" + line);
-    }
-    process.waitFor()
-    process.destroy()
-}
+//def static package7z(String srcFilePath, String outZipPath, String sevenZipPath)
+//        throws IOException, InterruptedException {
+//    //将 srcFilePath 目录下的所有文件（不包括 srcFilePath 目录） 压缩到 outZipPath。
+//    ProcessBuilder pb = new ProcessBuilder([sevenZipPath, "a", "-t7z", outZipPath, srcFilePath + File.separator + "*", "-mx5"])
+//    Process process = pb.start()
+//
+//    InputStreamReader ir = new InputStreamReader(process.getInputStream());
+//    LineNumberReader input = new LineNumberReader(ir)
+//    String line;
+//    while ((line = input.readLine()) != null) {
+//        println("package7z：" + input.getLineNumber() + ":" + line);
+//    }
+//    process.waitFor()
+//    process.destroy()
+//}
 
 
 //gradle.getTaskGraph().whenReady {
@@ -384,4 +395,179 @@ dependencies {
     implementation "com.android.support:appcompat-v7:$rootProject.ext.supportVersion"
     debugImplementation 'com.facebook.stetho:stetho:1.5.0'
     debugImplementation project(path: ':library')
+}
+
+class MyPlugin implements org.gradle.api.Plugin<org.gradle.api.Project> {
+    private org.gradle.api.Project mProject
+
+    @Override
+    void apply(org.gradle.api.Project project) {
+        mProject = project
+        //注册监听，以统计任务的耗时
+        project.gradle.addListener(new BuildTimeListener(project))
+//        project.afterEvaluate {
+//            Set<Task> tasks = project.getTasksByName("mergeDebugAssets", true)
+//            if (tasks.isEmpty()) {
+//                println("apply processDebugResources 获取 mergeDebugAssets 没有该任务")
+//            } else {
+//                tasks.forEach {
+//                    println("apply processDebugResources 获取 mergeDebugAssets 任务名称 ${it.name} ,${it.path} ")
+//                }
+//            }
+//
+//        }
+    }
+
+}
+
+class BuildTimeListener implements org.gradle.api.execution.TaskExecutionListener, org.gradle.BuildListener {
+
+    org.gradle.api.Project project
+
+    BuildTimeListener(org.gradle.api.Project project) {
+        this.project = project
+    }
+
+//用来记录 task 的执行时长信息
+    Map<String, TaskTimeInfo> taskTimeMap = new HashMap<>()
+
+    @Override
+    void buildStarted(org.gradle.api.invocation.Gradle gradle) {
+
+    }
+
+    @Override
+    void settingsEvaluated(org.gradle.api.initialization.Settings settings) {
+
+    }
+
+    @Override
+    void projectsLoaded(org.gradle.api.invocation.Gradle gradle) {
+
+    }
+
+    @Override
+    void projectsEvaluated(org.gradle.api.invocation.Gradle gradle) {
+
+//        Set<org.gradle.api.Task> processDebugResourcesTask = project.getTasksByName("processDebugResources", false)
+//
+//        Set<org.gradle.api.Task> copyProcessedResourcesTask = project.getTasksByName("copyProcessedResources", false)
+//        if (copyProcessedResourcesTask.isEmpty()) {
+//            println("projectsEvaluated copyProcessedResourcesTask 没有该任务")
+//        } else {
+//            if (!processDebugResourcesTask.isEmpty()) {
+//                processDebugResourcesTask.forEach {
+//                    println("projectsEvaluated processDebugResourcesTask 任务名称：${it.name} , 路径：${it.path} ")
+//                }
+//            }
+//            copyProcessedResourcesTask.forEach {
+//                it.dependsOn(processDebugResourcesTask)
+//                println("projectsEvaluated copyProcessedResourcesTask 任务名称：${it.name} , 路径：${it.path} ")
+//            }
+//        }
+//
+//        Set<org.gradle.api.Task> tasks = project.getTasksByName("mergeDebugAssets", false)
+//        if (tasks.isEmpty()) {
+//            println("projectsEvaluated  获取 mergeDebugAssets 没有该任务")
+//        } else {
+//            tasks.forEach {
+//                if (it.path == ":app:mergeDebugAssets") {
+//                    it.dependsOn(processDebugResourcesTask, copyProcessedResourcesTask)
+//                    println("projectsEvaluated 获取 mergeDebugAssets 任务名称：${it.name} , 路径：${it.path} ")
+//                }
+//            }
+//        }
+    }
+
+    @Override
+    void buildFinished(org.gradle.BuildResult buildResult) {
+//        println "-----------------打印所有的任务耗时开始----------------------"
+//        println "---------------------------------------"
+//        println "build finished, now println all task execution time:"
+//        taskTimeMap.each { k, v -> println "${k}:[${v.total}ms]" }
+//        println "---------------------------------------"
+//        println "---------------------------------------"
+//        println "-----------------打印所有的任务耗时结束----------------------"
+
+    }
+
+    @Override
+    void beforeExecute(org.gradle.api.Task task) {
+        //task开始执行之前搜集task的信息
+        TaskTimeInfo timeInfo = new TaskTimeInfo()
+        timeInfo.start = System.currentTimeMillis()
+        timeInfo.path = task.getPath()
+        taskTimeMap.put(task.getPath(), timeInfo)
+        def name = task.getName()
+//        println("beforeExecute task.getName() = " + name)
+//        println("beforeExecute task.getPath() = " + task.getPath())
+//        println("beforeExecute task.getTemporaryDir() = " + task.getTemporaryDir())
+//        def fileCollection = task.getInputs().getFiles()
+//        if (fileCollection.isEmpty()) {
+//            println("beforeExecute input file 没有输入文件")
+//        } else {
+//            fileCollection.forEach { it ->
+//                //println("beforeExecute input file " + it.getAbsolutePath())
+//                printlnDir("beforeExecute", name, it)
+//            }
+//        }
+        //println("beforeExecute task.getPath() = " + fileCollection)
+    }
+
+    private void printlnDir(String tag, String taskName, File file) {
+        if (file != null && file.isDirectory()) {
+            //printlnDir(tag,taskName,file)
+            File[] files = file.listFiles()
+            for (File childFile : files) {
+                printlnDir(tag, taskName, childFile)
+            }
+        } else {
+            println(tag + ", " + taskName + ", " + file.getAbsolutePath())
+        }
+    }
+
+    @Override
+    void afterExecute(org.gradle.api.Task task, org.gradle.api.tasks.TaskState taskState) {
+        //task执行完之后，记录结束时的时间
+        TaskTimeInfo timeInfo = taskTimeMap.get(task.getPath())
+        timeInfo.end = System.currentTimeMillis()
+        //计算该 task 的执行时长
+        timeInfo.total = timeInfo.end - timeInfo.start
+        def fileCollection = task.getOutputs().getFiles()
+        def name = task.getName()
+//        if (fileCollection.isEmpty()) {
+//            println("afterExecute input file 没有输出文件")
+//        } else {
+//            fileCollection.forEach { it ->
+//                printlnDir("afterExecute", name, it)
+//            }
+//        }
+
+
+        //if (task.name == "processDebugResources" && task.path == ":app:processDebugResources") {
+        //在 mergeDebugAssets 任务之前替换assets目录下的 darkmode.7z
+
+
+        //}
+
+//        if (name == "mergeDebugResources") {
+//            println("afterExecute task.getPath() = " + task.getPath())
+//            def fileCollection = task.getOutputs().getFiles()
+//            if (fileCollection.isEmpty()) {
+//                println("mergeDebugResources afterExecute input file 没有输出文件")
+//            } else {
+//                fileCollection.forEach {
+//                    println("mergeDebugResources afterExecute input file " + it.getAbsolutePath())
+//                }
+//            }
+//        }
+    }
+
+    class TaskTimeInfo {
+        //task执行总时长
+        long total
+        String path
+        long start
+        long end
+    }
 }

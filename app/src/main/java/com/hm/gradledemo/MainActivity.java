@@ -6,6 +6,10 @@ import android.widget.TextView;
 
 import com.hm.gradledemo.util.Lg;
 
+/**
+ * Created by p_dmweidu on 2022/11/30
+ * Desc:
+ */
 public class MainActivity extends AppCompatActivity {
 
     private final String TAG = getClass().getSimpleName();

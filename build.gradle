@@ -1,6 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 apply from: "CheckJenkinsParams.gradle"
-apply plugin: MyPlugin
+//apply plugin: MyPlugin
 
 buildscript {
     repositories {
@@ -18,8 +18,9 @@ buildscript {
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.21'
 
         //classpath '[groupId]:[artifactId]:[version]' 这3个参数是在插件的build.gradle脚本文件中声明的
-        classpath 'com.dmw.cus_plugin:CusPluginOne:1.0.0'
-        classpath 'com.dmw.plugin:asm_plugin:1.0.0'
+        //classpath 'com.dmw.cus_plugin:CusPluginOne:1.0.0'
+        //classpath 'com.dmw.plugin:asm_plugin:1.0.0'
+        classpath 'com.xx.plugin:replace_assets_plugin:1.0.0'
         //这个插件用来查看task依赖树
         classpath "com.dorongold.plugins:task-tree:2.1.0"
         //classpath 'com.dx168.fastdex:gradle-plugin:latest.release'
@@ -55,178 +56,5 @@ ext {
     versionName = "1.0"
 }
 
-class MyPlugin implements org.gradle.api.Plugin<org.gradle.api.Project> {
-    private org.gradle.api.Project mProject
 
-    @Override
-    void apply(org.gradle.api.Project project) {
-        mProject = project
-        //注册监听，以统计任务的耗时
-        project.gradle.addListener(new BuildTimeListener(project))
-//        project.afterEvaluate {
-//            Set<Task> tasks = project.getTasksByName("mergeDebugAssets", true)
-//            if (tasks.isEmpty()) {
-//                println("apply processDebugResources 获取 mergeDebugAssets 没有该任务")
-//            } else {
-//                tasks.forEach {
-//                    println("apply processDebugResources 获取 mergeDebugAssets 任务名称 ${it.name} ,${it.path} ")
-//                }
-//            }
-//
-//        }
-    }
-
-}
-
-class BuildTimeListener implements org.gradle.api.execution.TaskExecutionListener, org.gradle.BuildListener {
-
-    org.gradle.api.Project project
-
-    BuildTimeListener(org.gradle.api.Project project) {
-        this.project = project
-    }
-
-//用来记录 task 的执行时长信息
-    Map<String, TaskTimeInfo> taskTimeMap = new HashMap<>()
-
-    @Override
-    void buildStarted(org.gradle.api.invocation.Gradle gradle) {
-
-    }
-
-    @Override
-    void settingsEvaluated(org.gradle.api.initialization.Settings settings) {
-
-    }
-
-    @Override
-    void projectsLoaded(org.gradle.api.invocation.Gradle gradle) {
-
-    }
-
-    @Override
-    void projectsEvaluated(org.gradle.api.invocation.Gradle gradle) {
-
-        Set<org.gradle.api.Task> processDebugResourcesTask = project.getTasksByName("processDebugResources", true)
-
-        Set<org.gradle.api.Task> copyProcessedResourcesTask = project.getTasksByName("copyProcessedResources", true)
-        if (copyProcessedResourcesTask.isEmpty()) {
-            println("projectsEvaluated copyProcessedResourcesTask 没有该任务")
-        } else {
-            if (!processDebugResourcesTask.isEmpty()) {
-                processDebugResourcesTask.forEach {
-                    println("projectsEvaluated processDebugResourcesTask 任务名称：${it.name} , 路径：${it.path} ")
-                }
-            }
-            copyProcessedResourcesTask.forEach {
-                it.dependsOn(processDebugResourcesTask)
-                println("projectsEvaluated copyProcessedResourcesTask 任务名称：${it.name} , 路径：${it.path} ")
-            }
-        }
-
-        Set<org.gradle.api.Task> tasks = project.getTasksByName("mergeDebugAssets", true)
-        if (tasks.isEmpty()) {
-            println("projectsEvaluated  获取 mergeDebugAssets 没有该任务")
-        } else {
-            tasks.forEach {
-                if (it.path == ":app:mergeDebugAssets") {
-                    it.dependsOn(processDebugResourcesTask, copyProcessedResourcesTask)
-                    println("projectsEvaluated 获取 mergeDebugAssets 任务名称：${it.name} , 路径：${it.path} ")
-                }
-            }
-        }
-    }
-
-    @Override
-    void buildFinished(org.gradle.BuildResult buildResult) {
-//        println "-----------------打印所有的任务耗时开始----------------------"
-//        println "---------------------------------------"
-//        println "build finished, now println all task execution time:"
-//        taskTimeMap.each { k, v -> println "${k}:[${v.total}ms]" }
-//        println "---------------------------------------"
-//        println "---------------------------------------"
-//        println "-----------------打印所有的任务耗时结束----------------------"
-
-    }
-
-    @Override
-    void beforeExecute(org.gradle.api.Task task) {
-        //task开始执行之前搜集task的信息
-        TaskTimeInfo timeInfo = new TaskTimeInfo()
-        timeInfo.start = System.currentTimeMillis()
-        timeInfo.path = task.getPath()
-        taskTimeMap.put(task.getPath(), timeInfo)
-        def name = task.getName()
-//        println("beforeExecute task.getName() = " + name)
-//        println("beforeExecute task.getPath() = " + task.getPath())
-//        println("beforeExecute task.getTemporaryDir() = " + task.getTemporaryDir())
-//        def fileCollection = task.getInputs().getFiles()
-//        if (fileCollection.isEmpty()) {
-//            println("beforeExecute input file 没有输入文件")
-//        } else {
-//            fileCollection.forEach { it ->
-//                //println("beforeExecute input file " + it.getAbsolutePath())
-//                printlnDir("beforeExecute", name, it)
-//            }
-//        }
-        //println("beforeExecute task.getPath() = " + fileCollection)
-    }
-
-    private void printlnDir(String tag, String taskName, File file) {
-        if (file != null && file.isDirectory()) {
-            //printlnDir(tag,taskName,file)
-            File[] files = file.listFiles()
-            for (File childFile : files) {
-                printlnDir(tag, taskName, childFile)
-            }
-        } else {
-            println(tag + ", " + taskName + ", " + file.getAbsolutePath())
-        }
-    }
-
-    @Override
-    void afterExecute(org.gradle.api.Task task, org.gradle.api.tasks.TaskState taskState) {
-        //task执行完之后，记录结束时的时间
-        TaskTimeInfo timeInfo = taskTimeMap.get(task.getPath())
-        timeInfo.end = System.currentTimeMillis()
-        //计算该 task 的执行时长
-        timeInfo.total = timeInfo.end - timeInfo.start
-        def fileCollection = task.getOutputs().getFiles()
-        def name = task.getName()
-//        if (fileCollection.isEmpty()) {
-//            println("afterExecute input file 没有输出文件")
-//        } else {
-//            fileCollection.forEach { it ->
-//                printlnDir("afterExecute", name, it)
-//            }
-//        }
-
-
-        //if (task.name == "processDebugResources" && task.path == ":app:processDebugResources") {
-        //在 mergeDebugAssets 任务之前替换assets目录下的 darkmode.7z
-
-
-        //}
-
-//        if (name == "mergeDebugResources") {
-//            println("afterExecute task.getPath() = " + task.getPath())
-//            def fileCollection = task.getOutputs().getFiles()
-//            if (fileCollection.isEmpty()) {
-//                println("mergeDebugResources afterExecute input file 没有输出文件")
-//            } else {
-//                fileCollection.forEach {
-//                    println("mergeDebugResources afterExecute input file " + it.getAbsolutePath())
-//                }
-//            }
-//        }
-    }
-
-    class TaskTimeInfo {
-        //task执行总时长
-        long total
-        String path
-        long start
-        long end
-    }
-}
 
