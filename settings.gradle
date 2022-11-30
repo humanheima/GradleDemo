@@ -1,25 +1,24 @@
+//监听初始化过程
 gradle.addBuildListener(new BuildListener() {
 
     @Override
     void buildStarted(Gradle gradle) {
         println("//开始构建")
-
-
     }
 
     @Override
     void settingsEvaluated(Settings settings) {
-        println("//settings.gradle执行解析完毕")
+        println("//settings.gradle执行解析完毕,settings评估完成（settins.gradle中代码执行完毕）")
     }
 
     @Override
     void projectsLoaded(Gradle gradle) {
-        println("//Project初始化构造完成")
+        println("//Project初始化构造完成,初始化阶段结束")
     }
 
     @Override
     void projectsEvaluated(Gradle gradle) {
-        println("//所有Project的build.gradle执行解析完毕")
+        println("//所有Project的build.gradle执行解析完毕,配置阶段结束")
 
     }
 

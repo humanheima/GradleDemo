@@ -195,7 +195,30 @@ android {
             outputFileName = "${variant.name}-branch_${branchName}-${APP_VERSION}-${timeNow}.apk"
         }
     }
+
+    println("configurations类型：" + configurations.getClass())
+    /**
+     * 使用方式查看这几个类
+     * org.gradle.api.internal.artifacts.configurations.DefaultConfigurationContainer
+     * org.gradle.api.internal.artifacts.configurations.ResolutionStrategyInternal
+     * org.gradle.api.artifacts.ResolutionStrategy
+     * 参考文档：https://www.jianshu.com/p/322472456915
+     */
+//    configurations.all {
+//        resolutionStrategy.dependencySubstitution {
+//            // Substitute project and module dependencies
+//            substitute module('org.gradle:api') with project(':api')
+//            substitute project(':util') with module('org.gradle:util:3.0')
+//
+//            // Substitute one module dependency for another
+//            substitute module('org.gradle:api:2.0') with module('org.gradle:api:2.1')
+//
+//            resolutionStrategy.force 'asm:asm-all:3.3.1', 'commons-io:commons-io:1.4'
+//        }
+//    }
+
 }
+
 
 /**
  * 解压7z文件
@@ -224,7 +247,20 @@ def static extract7z(String srcFilePath, String outZipPath, String sevenZipPath)
  */
 def copyProcessedResourcesTask = task("copyProcessedResources")
 
-copyProcessedResourcesTask.doLast {
+copyProcessedResourcesTask.actions.add(new Action<Task>() {
+
+    @Override
+    void execute(org.gradle.api.Task task) {
+        //在配置阶段不会执行，只有在执行阶段才执行
+        println("copyProcessedResourcesTask 添加action，在配置阶段会执行吗？不会。")
+        generateDarkMode()
+    }
+})
+copyProcessedResourcesTask.actions.forEach {
+    println("copyProcessedResourcesTask 的 action : ${it.toString()}")
+}
+
+def generateDarkMode() {
 
     def resCompiledDirPath = "$project.buildDir/intermediates/processed_res/debug/out"
     def resCompiledFilePath = "$resCompiledDirPath/resources-debug.ap_"
@@ -262,7 +298,7 @@ copyProcessedResourcesTask.doLast {
         Process process = pb.start();
         InputStreamReader ir = new InputStreamReader(process.getInputStream());
         LineNumberReader input = new LineNumberReader(ir)
-        String tmp;
+        String tmp
         while ((tmp = input.readLine()) != null) {
             if (tmp.endsWith(File.separator + "7z")) {
                 sevenZipPath = tmp
@@ -334,6 +370,14 @@ def static package7z(String srcFilePath, String outZipPath, String sevenZipPath)
     process.waitFor()
     process.destroy()
 }
+
+
+//gradle.getTaskGraph().whenReady {
+//    println "whenReady Task依赖关系构建完成，size=${it.allTasks.size()}"
+//    it.allTasks.forEach { task ->
+//        println "whenReady taskName: ${task.name} , taskPath: ${task.path}"
+//    }
+//}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
