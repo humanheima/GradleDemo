@@ -5,6 +5,9 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import com.xx.plugin.*
 
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 /**
  * Created by p_dmweidu on 2022/11/30
  * Desc:用来在构建过程中自定义任务 copyProcessedResources 替换夜间模式的皮肤包darkmode.7z
@@ -33,6 +36,7 @@ class ReplaceAssetsPlugin implements Plugin<Project> {
         project.afterEvaluate {
             Log.printlnWithTag(TAG, "project afterEvaluate")
 
+
             mExtension = project.property("ReplaceAssetsExt") as Extension
 
             if (!mExtension.enable) {
@@ -40,19 +44,42 @@ class ReplaceAssetsPlugin implements Plugin<Project> {
                 return
             }
 
+            String tskReqStr = project.gradle.getStartParameter().getTaskRequests().toString()
 
+            /**
+             *  . 点可以匹配任意一个字符，注意是一个。
+             *  * 型号可以匹配任意个字符，包括0个字符。
+             *  ? 问号这里表示非贪婪匹配。
+             */
+            Pattern pattern = Pattern.compile("(assemble|resguard)(.*?Release|.*?Debug)")
+            Matcher matcher = pattern.matcher(tskReqStr)
 
-            Set<Task> processDebugResourcesTask = project.getTasksByName("processDebugResources",false)
+            String variantName = ""
+            if (matcher.find()) {
+//                int count = matcher.groupCount()
+//                for (int i = 0; i <= count; i++) {
+//                    System.out.println(matcher.group(i))
+//                }
+                variantName = matcher.group(2)
+            }
+
+            if (variantName == null || variantName.isEmpty()) {
+                Log.printlnWithTag(TAG, "variantName == null || variantName is empty , return")
+                return
+            }
+            Log.printlnWithTag(TAG, "variantName = $variantName")
+
+            Set<Task> processDebugResourcesTask = project.getTasksByName("process${variantName}Resources", false)
 
             if (processDebugResourcesTask.isEmpty()) {
-                Log.printlnWithTag(TAG, "afterEvaluate 不存在任务  processDebugResources 返回")
+                Log.printlnWithTag(TAG, "afterEvaluate 不存在任务  process${variantName}Resources 返回")
                 return
             }
 
-            Set<Task> mergeDebugAssetsTasks = project.getTasksByName("mergeDebugAssets",false)
+            Set<Task> mergeDebugAssetsTasks = project.getTasksByName("merge${variantName}Assets", false)
 
             if (mergeDebugAssetsTasks.isEmpty()) {
-                Log.printlnWithTag(TAG, "afterEvaluate 不存在任务  mergeDebugAssets 返回")
+                Log.printlnWithTag(TAG, "afterEvaluate 不存在任务  merge${variantName}Assets 返回")
                 return
             }
             //创建任务
@@ -60,7 +87,7 @@ class ReplaceAssetsPlugin implements Plugin<Project> {
 
             if (!processDebugResourcesTask.isEmpty() && !mergeDebugAssetsTasks.isEmpty()) {
                 processDebugResourcesTask.forEach {
-                    Log.printlnWithTag(TAG,"projectsEvaluated processDebugResourcesTask 任务名称：${it.name} , 路径：${it.path} ")
+                    Log.printlnWithTag(TAG, "projectsEvaluated processDebugResourcesTask 任务名称：${it.name} , 路径：${it.path} ")
                 }
                 replaceTask.dependsOn(processDebugResourcesTask)
                 mergeDebugAssetsTasks.forEach {

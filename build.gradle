@@ -20,7 +20,7 @@ buildscript {
         //classpath '[groupId]:[artifactId]:[version]' 这3个参数是在插件的build.gradle脚本文件中声明的
         //classpath 'com.dmw.cus_plugin:CusPluginOne:1.0.0'
         //classpath 'com.dmw.plugin:asm_plugin:1.0.0'
-        classpath 'com.xx.plugin:replace_assets_plugin:1.0.0'
+        classpath 'com.xx.plugin:replace_assets_plugin:1.0.6'
         //这个插件用来查看task依赖树
         classpath "com.dorongold.plugins:task-tree:2.1.0"
         //classpath 'com.dx168.fastdex:gradle-plugin:latest.release'
