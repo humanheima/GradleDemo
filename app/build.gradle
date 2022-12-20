@@ -1,14 +1,28 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
+
 apply plugin: 'com.android.application'
 apply plugin: 'AndResGuard'
 //apply plugin: 'com.dx168.fastdex'
 
 //引用完全自定义插件，名称就是插件模块META-INF/gradle-plugins/ 目录下 properties文件的名字
 apply plugin: 'com.example.plugin'
+//apply plugin: 'com.example.asmplugin'
 
+apply from: 'CommonUtil.gradle'
+
+apply plugin: 'ReplaceAssetsPlugin'
+
+ReplaceAssetsExt {
+
+    enable = true
+}
 //编译时间
 def static buildTime() {
     return new Date().format("yyyy-MM-dd HH:mm:ss")
 }
+
 //编译机器
 def static hostName() {
     return System.getProperty("user.name") + "@" + InetAddress.localHost.hostName
@@ -73,6 +87,8 @@ andResGuard {
     // digestalg = "SHA-256"
 }
 
+
+println("buildTime = " + buildTime())
 android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -86,12 +102,6 @@ android {
         resValue "string", "build_time", buildTime()
         resValue "string", "build_host", hostName()
         resValue "string", "build_revision", revision()
-
-        Map<String, ?> params = rootProject.properties
-
-        params.eachWithIndex { Map.Entry<String, ?> entry, int i ->
-            println("key = " + entry.key + ", value = " + entry.value)
-        }
     }
 
     signingConfigs {
@@ -146,20 +156,20 @@ android {
      *
      * 产品变种 + 构建类型 构建出来的就是构建变体
      */
-    productFlavors {
-        huawei {
-            dimension "tier"
-            applicationId "com.hm.huaweigradledemo"
-        }
-        mi {
-            dimension "tier"
-            applicationId "com.hm.migradledemo"
-        }
-        productFlavors.all {
-                //您可以在构建变体配置中为清单文件中的某些属性指定值，替换AndroidManifest.xml中的CHANNEL_NAME
-            flavor -> flavor.manifestPlaceholders = [CHANNEL_NAME: name]
-        }
-    }
+//    productFlavors {
+//        huawei {
+//            dimension "tier"
+//            applicationId "com.hm.huaweigradledemo"
+//        }
+//        mi {
+//            dimension "tier"
+//            applicationId "com.hm.migradledemo"
+//        }
+//        productFlavors.all {
+//                //您可以在构建变体配置中为清单文件中的某些属性指定值，替换AndroidManifest.xml中的CHANNEL_NAME
+//            flavor -> flavor.manifestPlaceholders = [CHANNEL_NAME: name]
+//        }
+//    }
 
     //重命名apk
     android.applicationVariants.all { variant ->
@@ -186,11 +196,33 @@ android {
             outputFileName = "${variant.name}-branch_${branchName}-${APP_VERSION}-${timeNow}.apk"
         }
     }
+
+    println("configurations类型：" + configurations.getClass())
+    /**
+     * 使用方式查看这几个类
+     * org.gradle.api.internal.artifacts.configurations.DefaultConfigurationContainer
+     * org.gradle.api.internal.artifacts.configurations.ResolutionStrategyInternal
+     * org.gradle.api.artifacts.ResolutionStrategy
+     * 参考文档：https://www.jianshu.com/p/322472456915
+     */
+//    configurations.all {
+//        resolutionStrategy.dependencySubstitution {
+//            // Substitute project and module dependencies
+//            substitute module('org.gradle:api') with project(':api')
+//            substitute project(':util') with module('org.gradle:util:3.0')
+//
+//            // Substitute one module dependency for another
+//            substitute module('org.gradle:api:2.0') with module('org.gradle:api:2.1')
+//
+//            resolutionStrategy.force 'asm:asm-all:3.3.1', 'commons-io:commons-io:1.4'
+//        }
+//    }
+
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "com.android.support:appcompat-v7:$rootProject.ext.supportVersion"
     debugImplementation 'com.facebook.stetho:stetho:1.5.0'
-    debugImplementation project(path: ':library')
+    //debugImplementation project(path: ':library')
 }

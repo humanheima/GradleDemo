@@ -1,0 +1,14 @@
+
+//编译时间
+String buildTime() {
+    return new Date().format("yyyy-MM-dd HH:mm:ss")
+}
+
+ext {
+    buildTime = this.&buildTime
+    printlnWithTag = this.&printlnWithTag
+}
+
+def static printlnWithTag(String tag, String log) {
+    println("$tag : $log")
+}

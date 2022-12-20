@@ -1,27 +1,35 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 apply from: "CheckJenkinsParams.gradle"
-apply plugin: MyPlugin
+//apply plugin: MyPlugin
 
 buildscript {
     repositories {
-        jcenter()
-        google()
         maven {
             url uri('./repos') //指定本地maven的路径，在项目根目录下
         }
+        maven { url "https://plugins.gradle.org/m2" }
+        jcenter()
+        google()
     }
     dependencies {
+
         classpath 'com.android.tools.build:gradle:4.1.3'
         classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.21'
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.21'
 
         //classpath '[groupId]:[artifactId]:[version]' 这3个参数是在插件的build.gradle脚本文件中声明的
-        classpath 'com.dmw.cus_plugin:CusPluginOne:1.0.0'
+        classpath 'com.dmw.cus_plugin:CusPluginOne:1.0.4'
+        classpath 'com.dmw.plugin:asm_plugin:1.0.2'
+        classpath 'com.xx.plugin:replace_assets_plugin:1.0.6'
+        //这个插件用来查看task依赖树
+        classpath "com.dorongold.plugins:task-tree:2.1.0"
         //classpath 'com.dx168.fastdex:gradle-plugin:latest.release'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
+
+//apply plugin: com.dorongold.gradle.tasktree.TaskTreePlugin
 
 allprojects {
     repositories {
@@ -48,78 +56,9 @@ ext {
     versionName = "1.0"
 }
 
-class MyPlugin implements Plugin<Project> {
-    private Project mProject;
+String tskReqStr = project.gradle.getStartParameter().getTaskRequests().toString()
 
-    @Override
-    void apply(Project project) {
-        mProject = project;
-        //注册监听，以统计任务的耗时
-        project.gradle.addListener(new BuildTimeListener())
-    }
-}
+println(tskReqStr)
+println(project.gradle.startParameter.projectProperties.toString())
 
-class BuildTimeListener implements TaskExecutionListener, BuildListener {
-
-    //用来记录 task 的执行时长信息
-    Map<String, TaskTimeInfo> taskTimeMap = new HashMap<>()
-
-    @Override
-    void buildStarted(Gradle gradle) {
-
-    }
-
-    @Override
-    void settingsEvaluated(Settings settings) {
-
-    }
-
-    @Override
-    void projectsLoaded(Gradle gradle) {
-
-    }
-
-    @Override
-    void projectsEvaluated(Gradle gradle) {
-
-    }
-
-    @Override
-    void buildFinished(BuildResult buildResult) {
-        println "-----------------打印所有的任务耗时开始----------------------"
-        println "---------------------------------------"
-        println "build finished, now println all task execution time:"
-        taskTimeMap.each { k, v -> println "${k}:[${v.total}ms]" }
-        println "---------------------------------------"
-        println "---------------------------------------"
-        println "-----------------打印所有的任务耗时结束----------------------"
-
-    }
-
-    @Override
-    void beforeExecute(Task task) {
-        //task开始执行之前搜集task的信息
-        TaskTimeInfo timeInfo = new TaskTimeInfo()
-        timeInfo.start = System.currentTimeMillis()
-        timeInfo.path = task.getPath()
-        taskTimeMap.put(task.getPath(), timeInfo)
-    }
-
-    @Override
-    void afterExecute(Task task, TaskState taskState) {
-        //task执行完之后，记录结束时的时间
-        TaskTimeInfo timeInfo = taskTimeMap.get(task.getPath())
-        timeInfo.end = System.currentTimeMillis()
-        //计算该 task 的执行时长
-        timeInfo.total = timeInfo.end - timeInfo.start
-    }
-
-    class TaskTimeInfo {
-        //task执行总时长
-        long total
-        String path
-        long start
-        long end
-    }
-}
 

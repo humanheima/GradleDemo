@@ -16,10 +16,167 @@
 这将在`project_name/module_name/build/outputs/apk/`中输出APK。该文件已使用调试密钥进行签名并使用`zipalign`对齐，因此您可以立即将其安装到设备上。
 
 
-4. gradlew assemblerelease 编译release版本
+4. gradlew assembleRelease 编译release版本
 
 
 6. gradlew :app:dependencies --configuration implementation 查看 app implementation  了那些依赖
+
+
+[从Gradle生命周期到自定义Task挂接到Build构建流程全解](https://juejin.cn/post/6982379643311489032#comment)
+
+## Gradle 构建生命周期
+
+![Gradle构建流程图](Gralde构建流程.png)
+
+* 初始化阶段
+* 配置阶段
+* 执行阶段
+
+### 初始化阶段
+
+监听初始化过程，在 setting.gradle 中监听
+
+```groovy
+//监听初始化过程
+gradle.addBuildListener(new BuildListener() {
+
+    @Override
+    void buildStarted(Gradle gradle) {
+        println("//开始构建")
+    }
+
+    @Override
+    void settingsEvaluated(Settings settings) {
+        println("//settings.gradle执行解析完毕,settings评估完成（settins.gradle中代码执行完毕）")
+    }
+
+    @Override
+    void projectsLoaded(Gradle gradle) {
+        println("//Project初始化构造完成,初始化阶段结束")
+    }
+
+    @Override
+    void projectsEvaluated(Gradle gradle) {
+        println("//所有Project的build.gradle执行解析完毕,配置阶段结束")
+
+    }
+
+    @Override
+    void buildFinished(BuildResult result) {
+        println("//构建结束")
+    }
+})
+```
+
+### 配置阶段
+
+配置阶段的任务：是执行各项目下的build.gradle脚本，完成 Project 的配置，并且构造Task任务依赖关系图以便在执行阶段按照依赖关系执行Task。
+
+
+Task 依赖关系配置完成监听
+
+```groovy
+gradle.getTaskGraph().whenReady {
+    println "whenReady Task依赖关系构建完成，size=${it.allTasks.size()}"
+    it.allTasks.forEach { task ->
+        println "whenReady taskName: ${task.name} , taskPath: ${task.path}"
+    }
+}
+```
+
+### 执行阶段
+
+指定 Task 执行顺序
+
+在Gradle中，有三种方式指定task的执行顺序：
+
+* dependsOn 强依赖方式
+
+静态依赖：
+
+```groovy
+task taskX {
+  doLast{
+    println 'taskX'
+  }
+}
+
+task taskY {
+  doLast{
+    println 'taskY'
+  }
+}
+
+task taskZ(dependsOn:taskX) { // 多依赖方式：dependsOn:[taskX,taskY]
+  doLast{
+    println 'taskZ'
+  }
+}
+
+// 当我们执行taskZ的时候，由于依赖了taskX，则taskX会先执行，然后才会执行：taskZ
+```
+
+```groovy
+task taskZ {// 定义Task的时候不指定依赖
+  doLast{
+    println 'taskZ'
+  }
+}
+
+// 通过task的dependsOn方法，也可以指定task的依赖task。
+taskZ.dependsOn(taskX,taskY)
+
+```
+
+动态依赖：当 Task 在定义的时候，不知道所依赖的 Task 是什么，在配置阶段，通过条件找出符合条件的 Task ，并进行依赖。
+
+```groovy
+task lib1 {
+  doLask{
+    println 'lib1'
+  }
+}
+task lib2 {
+  doLask{
+    println 'lib2'
+  }
+}
+task lib3 {
+  doLask{
+    println 'lib3'
+  }
+}
+
+// 动态指定taskX依赖所有以lib开头的task
+task taskX{
+  // 动态指定依赖
+  dependsOn this.tasks.findAll{ task->
+    return task.name.startsWidth('lib')
+  }
+  doLast {
+    println 'taskZ'
+  }
+}
+```
+
+* 通过Task输入输出
+
+
+* 通过API指定执行顺序
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## ADB 命令 参考链接 http://yuanfentiank789.github.io/2016/09/01/adb/
 1. adb devices 列出所有连接设备 或者使用 adb devices -l 
@@ -119,6 +276,19 @@ How to Launch
 
 If you are using Android Studio, you can find the generate task option in andresguard group. Or alternatively, you run ./gradlew resguard[BuildType | Flavor] in your terminal. The format of task name is as same as assemble.
 
+### 自定义插件
+
+* [Android 自定义Gradle插件的3种方式](https://www.jianshu.com/p/f902b51e242b)  这篇文章写的最好。
+
+
+### 查看依赖树的插件
+
+[gradle-task-tree](https://github.com/dorongold/gradle-task-tree)
+
+```
+//这个插件用来查看task依赖树
+classpath "com.dorongold.plugins:task-tree:2.1.0"
+```
 
 
 

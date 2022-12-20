@@ -11,7 +11,7 @@ repositories {
 
 
 def group='com.dmw.cus_plugin' //组
-def version='1.0.0' //版本
+def version='1.0.4' //版本
 def artifactId='CusPluginOne' //唯一标示
 
 //将插件打包上传到本地maven仓库
