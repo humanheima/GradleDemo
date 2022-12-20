@@ -28,7 +28,8 @@ gradle.addBuildListener(new BuildListener() {
     }
 })
 
-include ':library' , ':app'
+//include ':library'
+include ':app'
 include ':cus_plugin_one'
 include ':asm_lifecycle_plugin'
 include ':replace_assets'

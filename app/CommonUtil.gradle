@@ -6,4 +6,9 @@ String buildTime() {
 
 ext {
     buildTime = this.&buildTime
+    printlnWithTag = this.&printlnWithTag
+}
+
+def static printlnWithTag(String tag, String log) {
+    println("$tag : $log")
 }

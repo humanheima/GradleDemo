@@ -16,7 +16,7 @@
 这将在`project_name/module_name/build/outputs/apk/`中输出APK。该文件已使用调试密钥进行签名并使用`zipalign`对齐，因此您可以立即将其安装到设备上。
 
 
-4. gradlew assemblerelease 编译release版本
+4. gradlew assembleRelease 编译release版本
 
 
 6. gradlew :app:dependencies --configuration implementation 查看 app implementation  了那些依赖
@@ -279,6 +279,17 @@ If you are using Android Studio, you can find the generate task option in andres
 ### 自定义插件
 
 * [Android 自定义Gradle插件的3种方式](https://www.jianshu.com/p/f902b51e242b)  这篇文章写的最好。
+
+
+### 查看依赖树的插件
+
+[gradle-task-tree](https://github.com/dorongold/gradle-task-tree)
+
+```
+//这个插件用来查看task依赖树
+classpath "com.dorongold.plugins:task-tree:2.1.0"
+```
+
 
 
 

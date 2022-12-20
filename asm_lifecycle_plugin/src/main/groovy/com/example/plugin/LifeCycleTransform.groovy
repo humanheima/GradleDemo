@@ -29,27 +29,28 @@ class LifeCycleTransform extends Transform {
         return TransformManager.PROJECT_ONLY
     }
 
+//    @Override
+//    Set<? super QualifiedContent.Scope> getReferencedScopes() {
+//        return TransformManager.PROJECT_ONLY
+//    }
+
     @Override
     boolean isIncremental() {
         return false
     }
 
     @Override
-    void transform(Context context, Collection<TransformInput> inputs,
-                   Collection<TransformInput> referencedInputs,
-                   TransformOutputProvider outputProvider,
-                   boolean isIncremental) throws IOException, TransformException, InterruptedException {
-        println(TAG + "  transform start")
-        if (inputs != null) {
-            inputs.each { transformInput ->
+    void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
+        //super.transform(transformInvocation)
+        println(TAG + "  transformInvocation start")
+        Collection<TransformInput> transformInputs = transformInvocation.inputs
+        if (transformInputs != null) {
+            transformInputs.each { transformInput ->
                 // directoryInputs代表着以源码方式依赖参与项目编译的所有目录结构及其目录下的源码文件
                 // 比如我们手写的类以及R.class、BuildConfig.class以及MainActivity.class等
                 transformInput.directoryInputs.each { directoryInput ->
                     File dir = directoryInput.file
                     if (dir != null) {
-//                        dir.traverse { file ->
-//                            println(TAG + "== find all file : " + file.name)
-//                        }
                         dir.traverse(type: FileType.FILES, nameFilter: ~/.*\.class/) { File file ->
                             println(TAG + " find class: " + file.name)
                         }
@@ -57,29 +58,7 @@ class LifeCycleTransform extends Transform {
                 }
             }
         }
-        println(TAG + "  transform finish")
-    }
+        println(TAG + "  transformInvocation finish")
 
-//    @Override
-//    void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
-//        //super.transform(transformInvocation)
-//        println(TAG + "  transformInvocation start")
-//        Collection<TransformInput> transformInputs = transformInvocation.inputs;
-//        if (transformInputs != null) {
-//            transformInputs.each { transformInput ->
-//                // directoryInputs代表着以源码方式依赖参与项目编译的所有目录结构及其目录下的源码文件
-//                // 比如我们手写的类以及R.class、BuildConfig.class以及MainActivity.class等
-//                transformInput.directoryInputs.each { directoryInput ->
-//                    File dir = directoryInput.file
-//                    if (dir != null) {
-//                        dir.traverse(type: FileType.FILES, nameFilter: ~/.*\.class/) { File file ->
-//                            println(TAG + " find class: " + file.name)
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        println(TAG + "  transformInvocation finish")
-//
-//    }
+    }
 }
