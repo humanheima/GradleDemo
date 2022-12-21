@@ -11,11 +11,24 @@ class CustomPlugin implements Plugin<Project> {
 
     private Project mProject
 
+    private Extension mExtension
+
+
+    private String TAG = "CustomPlugin"
+
     @Override
     void apply(Project project) {
-        println("this is CusPlugin")
-        mProject = project
-        //注册监听，以统计任务的耗时
-        project.gradle.addListener(new BuildTimeListener(project))
+        project.extensions.create("CustomPluginExt", Extension.class)
+        project.afterEvaluate {
+            mExtension = project.property("CustomPluginExt") as Extension
+            if (!mExtension.enable) {
+                Log.printlnWithTag(TAG, "mExtension.enable = false , return")
+                return
+            }
+            Log.printlnWithTag(TAG, "this is CusPlugin")
+            mProject = project
+            //注册监听，以统计任务的耗时
+            project.gradle.addListener(new BuildTimeListener(project))
+        }
     }
 }

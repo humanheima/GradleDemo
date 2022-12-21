@@ -16,7 +16,7 @@ apply plugin: 'ReplaceAssetsPlugin'
 
 ReplaceAssetsExt {
 
-    enable = true
+    enable = false
 }
 //编译时间
 def static buildTime() {
@@ -43,6 +43,10 @@ static def getDate() {
     return "local_time" + formattedDate
 }
 
+CustomPluginExt {
+
+    enable = false
+}
 andResGuard {
     mappingFile = file("./resource_mapping.txt")
     //mappingFile = null
