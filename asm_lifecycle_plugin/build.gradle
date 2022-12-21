@@ -16,7 +16,7 @@ repositories {
 
 
 def group='com.dmw.plugin' //组
-def version='1.0.2' //版本
+def version='1.0.3' //版本
 def artifactId='asm_plugin' //唯一标示
 
 //将插件打包上传到本地maven仓库
