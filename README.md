@@ -291,8 +291,15 @@ classpath "com.dorongold.plugins:task-tree:2.1.0"
 ```
 
 
+2. 使用命令 
+
+`./gradlew build --scan`
 
 
+### 调试插件
+
+* [Android Studio调试Gradle插件](https://blog.csdn.net/ZYJWR/article/details/113129586)
+./gradlew --no-daemon -Dorg.gradle.debug=true :app:transformClassesWithLifeCycleTransformForDebug 
 
 
 

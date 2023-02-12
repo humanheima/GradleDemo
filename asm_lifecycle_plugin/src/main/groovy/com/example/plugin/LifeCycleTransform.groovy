@@ -1,9 +1,9 @@
 package com.example.plugin
 
-import groovy.io.FileType
 import com.android.build.api.transform.*
 import com.android.build.gradle.internal.pipeline.TransformManager
 import com.android.utils.FileUtils
+import groovy.io.FileType
 
 class LifeCycleTransform extends Transform {
 
@@ -39,10 +39,17 @@ class LifeCycleTransform extends Transform {
         Log.printlnWithTag(TAG, "transformInvocation start")
         Collection<TransformInput> inputs = transformInvocation.inputs
         inputs.each { transformInput ->
+            if (transformInput == null) {
+                Log.printlnWithTag(TAG, " transformInput  is null return")
+            }
             // directoryInputs代表着以源码方式依赖参与项目编译的所有目录结构及其目录下的源码文件
             // 比如我们手写的类以及R.class、BuildConfig.class以及MainActivity.class等
             Log.printlnWithTag(TAG, "process directoryInputs start")
             transformInput.directoryInputs.each { directoryInput ->
+                if (directoryInput == null || directoryInput.file == null || !directoryInput.file.exists()) {
+                    Log.printlnWithTag(TAG, "directoryInput 不存在" + directoryInput)
+                    return
+                }
                 String path = directoryInput.file.absolutePath
                 Log.printlnWithTag(TAG, "directoryInput file path" + path)
                 //获取输出目录
@@ -51,9 +58,9 @@ class LifeCycleTransform extends Transform {
                         directoryInput.scopes,
                         Format.DIRECTORY)
 
-                if (dest != null) {
+                if (dest != null && dest.exists()) {
                     dest.traverse(type: FileType.FILES, nameFilter: ~/.*\.class/) { File file ->
-                        Log.printlnWithTag(TAG," find class: " + file.name)
+                        Log.printlnWithTag(TAG, " find class: " + file.name)
                     }
                 }
 
