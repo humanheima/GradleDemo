@@ -4,7 +4,11 @@
 /**
  *  Jenkins 执行 shell脚本，运行下面的命令，可以获取这些属性。
  * /Users/xmly/.gradle/wrapper/dists/gradle-6.5-all/2oz4ud9k3tuxjg84bbf55q0tn/gradle-6.5/bin/gradle -PBRANCH=origin/learn_and_review -PBUILD_TYPE=Release $'-PtestParams=\346\265\213\350\257\225' -PPRODUCT_FLAVOR=mi -PIS_JENKINS=true -PBUILD_TIME=2022-01-06-22:20:35 -PAPP_VERSION=2.0.0 clean assemblemiRelease
+ * ./gradlew -PBRANCH=origin/learn_and_review -PBUILD_TYPE=Release $'-PtestParams=\346\265\213\350\257\225' -PPRODUCT_FLAVOR=mi -PIS_JENKINS=true -PBUILD_TIME=2022-01-06-22:20:35 -PAPP_VERSION=2.0.0 clean assemblemiRelease
+ * ./gradlew -PBRANCH=origin/learn_and_review -PBUILD_TYPE=Release $'-PtestParams=\346\265\213\350\257\225' -PPRODUCT_FLAVOR=mi -PIS_JENKINS=true -PBUILD_TIME=2022-01-06-22:20:35 -PAPP_VERSION=2.0.0 clean :app:assembleDebug
  */
+
+println("In CheckJenkinsParams.gradle project = " + project.getName() + " , rootProject = " + rootProject.getName())
 
 if (project.hasProperty('BUILD_TYPE')) {
     rootProject.BUILD_TYPE = project.property('BUILD_TYPE')

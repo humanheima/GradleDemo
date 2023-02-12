@@ -14,6 +14,8 @@ apply from: 'CommonUtil.gradle'
 
 apply plugin: 'ReplaceAssetsPlugin'
 
+apply from: "../CheckJenkinsParams.gradle"
+
 ReplaceAssetsExt {
 
     enable = false
@@ -92,6 +94,7 @@ andResGuard {
 }
 
 
+println("In app/build.gradle rootProject.IS_JENKINS = " + rootProject.IS_JENKINS)
 println("buildTime = " + buildTime())
 android {
 
