@@ -94,6 +94,7 @@ andResGuard {
 }
 
 
+project.property('IS_JENKINS')
 println("In app/build.gradle rootProject.IS_JENKINS = " + rootProject.IS_JENKINS)
 println("buildTime = " + buildTime())
 android {
