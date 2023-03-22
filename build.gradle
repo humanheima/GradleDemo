@@ -3,6 +3,7 @@ apply from: "CheckJenkinsParams.gradle"
 //apply plugin: MyPlugin
 
 buildscript {
+    ext.kotlin_version = '1.6.10'
     repositories {
         maven {
             url uri('./repos') //指定本地maven的路径，在项目根目录下
@@ -15,7 +16,7 @@ buildscript {
 
         classpath 'com.android.tools.build:gradle:4.1.3'
         classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.21'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.21'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10'
 
         //classpath '[groupId]:[artifactId]:[version]' 这3个参数是在插件的build.gradle脚本文件中声明的
         classpath 'com.dmw.cus_plugin:CusPluginOne:1.0.4'
@@ -23,6 +24,7 @@ buildscript {
         classpath 'com.xx.plugin:replace_assets_plugin:1.0.6'
         //这个插件用来查看task依赖树
         classpath "com.dorongold.plugins:task-tree:2.1.0"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         //classpath 'com.dx168.fastdex:gradle-plugin:latest.release'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -47,8 +49,8 @@ task clean(type: Delete) {
  * 对于包含多个模块的 Android 项目，可能有必要在项目级别定义某些属性并在所有模块之间共享这些属性。
  */
 ext {
-    compileSdkVersion = 27
-    buildToolsVersion = "27.0.3"
+    compileSdkVersion = 30
+    buildToolsVersion = "30.0.3"
     supportVersion = "27.1.1"
     minSdkVersion = 15
     targetSdkVersion = 27

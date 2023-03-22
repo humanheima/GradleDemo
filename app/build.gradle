@@ -3,6 +3,7 @@ import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 apply plugin: 'AndResGuard'
 //apply plugin: 'com.dx168.fastdex'
 
@@ -136,6 +137,7 @@ android {
     buildTypes {
         release {
             // Enables code shrinking for the release build type.
+            //启用代码缩减功能
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -232,5 +234,9 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "com.android.support:appcompat-v7:$rootProject.ext.supportVersion"
     debugImplementation 'com.facebook.stetho:stetho:1.5.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     //debugImplementation project(path: ':library')
+}
+repositories {
+    mavenCentral()
 }
