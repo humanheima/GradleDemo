@@ -1,5 +1,11 @@
 * CMD+K 强制清空终端内容并将偏移置0
 
+### 关掉Charles Proxy后，Gradle 报错Connect to 127.0.0.1:8888 [/127.0.0.1] failed: Connection refused (Connection refused)
+
+解决方法：pkill -f '.*GradleDaemon.*'
+
+然后重启 Android Studio.
+
 参考链接：
 
 * [配置 build ](https://developer.android.com/studio/build?hl=zh-cn#groovy)
@@ -302,6 +308,7 @@ classpath "com.dorongold.plugins:task-tree:2.1.0"
 ./gradlew --no-daemon -Dorg.gradle.debug=true :app:transformClassesWithLifeCycleTransformForDebug 
 
 
+./gradlew --no-daemon -Dorg.gradle.debug=true :app:transformClassesWithSpiderStatisticsTransformForDebug
 
  
 
