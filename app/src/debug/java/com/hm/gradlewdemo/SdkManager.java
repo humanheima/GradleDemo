@@ -1,15 +1,15 @@
 package com.hm.gradlewdemo;
 
-import android.content.Context;
-
-import com.facebook.stetho.Stetho;
+import android.util.Log;
 
 /**
  * Created by dumingwei on 2017/5/17.
  */
 public class SdkManager {
 
-    public static void init(Context context) {
-        Stetho.initializeWithDefaults(context);
+    public static boolean shouldLog = true;
+
+    public static void haha() {
+        Log.i("SdkManager", "haha: ");
     }
 }

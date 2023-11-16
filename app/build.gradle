@@ -127,9 +127,9 @@ android {
             keyAlias KEY_ALIAS
             keyPassword KEY_PASSWORD
         }
-
-
     }
+
+
 
     /**
      * 构建类型
@@ -158,6 +158,13 @@ android {
 
         }
     }
+
+    // java版本
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
 
 
     flavorDimensions "tier"
@@ -234,7 +241,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.0.0'
     debugImplementation 'com.facebook.stetho:stetho:1.5.0'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     //debugImplementation project(path: ':library')
 }
 repositories {
