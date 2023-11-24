@@ -1,10 +1,6 @@
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
-
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'AndResGuard'
+//apply plugin: 'AndResGuard'
 //apply plugin: 'com.dx168.fastdex'
 
 //引用完全自定义插件，名称就是插件模块META-INF/gradle-plugins/ 目录下 properties文件的名字
@@ -50,49 +46,49 @@ CustomPluginExt {
 
     enable = false
 }
-andResGuard {
-    mappingFile = file("./resource_mapping.txt")
-    //mappingFile = null
-    use7zip = true
-    useSign = true
-    // It will keep the origin path of your resources when it's true
-    keepRoot = false
-    // If set, name column in arsc those need to proguard will be kept to this value
-    fixedResName = "arg"
-    // It will merge the duplicated resources, but don't rely on this feature too much.
-    // it's always better to remove duplicated resource from repo
-    mergeDuplicatedRes = true
-    whiteList = [
-            // your icon
-            "R.mipmap.ic_launcher",
-            //"R.drawable.icon",
-            // for fabric
-            "R.string.com.crashlytics.*",
-            "R.string.not_res_proguard",
-    ]
-    compressFilePattern = [
-            "*.png",
-            "*.jpg",
-            "*.jpeg",
-            "*.gif",
-    ]
-    sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.2.21'
-        //path = "/usr/local/bin/7za"
-    }
-
-    /**
-     * Optional: if finalApkBackupPath is null, AndResGuard will overwrite final apk
-     * to the path which assemble[Task] write to
-     **/
-    // finalApkBackupPath = "${project.rootDir}/final.apk"
-
-    /**
-     * Optional: Specifies the name of the message digest algorithm to user when digesting the entries of JAR file
-     * Only works in V1signing, default value is "SHA-1"
-     **/
-    // digestalg = "SHA-256"
-}
+//andResGuard {
+//    mappingFile = file("./resource_mapping.txt")
+//    //mappingFile = null
+//    use7zip = true
+//    useSign = true
+//    // It will keep the origin path of your resources when it's true
+//    keepRoot = false
+//    // If set, name column in arsc those need to proguard will be kept to this value
+//    fixedResName = "arg"
+//    // It will merge the duplicated resources, but don't rely on this feature too much.
+//    // it's always better to remove duplicated resource from repo
+//    mergeDuplicatedRes = true
+//    whiteList = [
+//            // your icon
+//            "R.mipmap.ic_launcher",
+//            //"R.drawable.icon",
+//            // for fabric
+//            "R.string.com.crashlytics.*",
+//            "R.string.not_res_proguard",
+//    ]
+//    compressFilePattern = [
+//            "*.png",
+//            "*.jpg",
+//            "*.jpeg",
+//            "*.gif",
+//    ]
+//    sevenzip {
+//        artifact = 'com.tencent.mm:SevenZip:1.2.21'
+//        //path = "/usr/local/bin/7za"
+//    }
+//
+//    /**
+//     * Optional: if finalApkBackupPath is null, AndResGuard will overwrite final apk
+//     * to the path which assemble[Task] write to
+//     **/
+//    // finalApkBackupPath = "${project.rootDir}/final.apk"
+//
+//    /**
+//     * Optional: Specifies the name of the message digest algorithm to user when digesting the entries of JAR file
+//     * Only works in V1signing, default value is "SHA-1"
+//     **/
+//    // digestalg = "SHA-256"
+//}
 
 
 project.property('IS_JENKINS')
@@ -130,7 +126,6 @@ android {
     }
 
 
-
     /**
      * 构建类型
      */
@@ -166,7 +161,6 @@ android {
     }
 
 
-
     flavorDimensions "tier"
     /**
      * productFlavors代码块用来配置多个产品变种。这允许你使用不同的变种配置来覆盖defaultConfig代码块中的配置，从而你创建不同版本的App。
@@ -190,8 +184,9 @@ android {
 
     //重命名apk
     android.applicationVariants.all { variant ->
-        println("variant.name = " + variant.name)
-        variant.outputs.all {
+        println("variant.name = " + variant)
+        variant.outputs.all { output ->
+
             //时间戳
             def timeNow
             def branchName
@@ -236,6 +231,34 @@ android {
 //    }
 
 }
+
+afterEvaluate {
+
+    Task task = tasks.register('copyFiles', Copy) {
+        from 'build/outputs/bundle/debug/app-debug.aab'
+        into 'build/outputs/bundle/debug/'
+        rename { String fileName ->
+            fileName.replace('app-debug.aab', 'app-debug-copy.aab')
+        }
+        //rename 'app-debug.aab', 'app-debug-copy.aab'
+    }.get()
+
+    task.doFirst {
+        println("copyFiles doFirst")
+    }
+
+    Task task1 = tasks.findByName('bundleDebug')
+
+    if (task1 != null) {
+        println("task1 = " + task1.name)
+        task.dependsOn(task1)
+    }
+
+//    tasks.forEach {
+//        println("task name = " + it.name)
+//    }
+}
+
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
