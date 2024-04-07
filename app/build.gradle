@@ -15,7 +15,7 @@ apply from: "../CheckJenkinsParams.gradle"
 
 ReplaceAssetsExt {
 
-    enable = true
+    enable = false
 }
 //编译时间
 def static buildTime() {
