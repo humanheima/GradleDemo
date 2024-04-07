@@ -28,6 +28,11 @@ gradle.addBuildListener(new BuildListener() {
     }
 })
 
+//gradle.afterProject { project ->
+//    //每个project都会执行一次
+//    println("//project = " + project.getName())
+//}
+
 //include ':library'
 include ':app'
 include ':cus_plugin_one'

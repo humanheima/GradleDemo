@@ -17,6 +17,7 @@ repositories {
 
 def group='com.dmw.plugin' //组
 def version='1.0.5' //版本
+//可以跟gradle-plugins.xml中的implementation-class不一样
 def artifactId='asm_plugin' //唯一标示
 
 //将插件打包上传到本地maven仓库

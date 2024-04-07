@@ -15,7 +15,7 @@ apply from: "../CheckJenkinsParams.gradle"
 
 ReplaceAssetsExt {
 
-    enable = false
+    enable = true
 }
 //编译时间
 def static buildTime() {
@@ -44,8 +44,9 @@ static def getDate() {
 
 CustomPluginExt {
 
-    enable = false
+    enable = true
 }
+
 //andResGuard {
 //    mappingFile = file("./resource_mapping.txt")
 //    //mappingFile = null

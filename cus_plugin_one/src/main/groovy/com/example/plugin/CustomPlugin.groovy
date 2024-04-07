@@ -28,6 +28,25 @@ class CustomPlugin implements Plugin<Project> {
             Log.printlnWithTag(TAG, "this is CusPlugin")
             mProject = project
             //注册监听，以统计任务的耗时
+            //这里支持的Listener有很多，可以根据需求自行选择
+            /**
+             * Adds the given listener to this build. The listener may implement any of the given listener interfaces:
+             *
+             * <ul>
+             * <li>{@link org.gradle.BuildListener}
+             * <li>{@link org.gradle.api.execution.TaskExecutionGraphListener}
+             * <li>{@link org.gradle.api.ProjectEvaluationListener}
+             * <li>{@link org.gradle.api.execution.TaskExecutionListener}
+             * <li>{@link org.gradle.api.execution.TaskActionListener}
+             * <li>{@link org.gradle.api.logging.StandardOutputListener}
+             * <li>{@link org.gradle.api.tasks.testing.TestListener}
+             * <li>{@link org.gradle.api.tasks.testing.TestOutputListener}
+             * <li>{@link org.gradle.api.artifacts.DependencyResolutionListener}
+             * </ul>
+             *
+             * @param listener The listener to add. Does nothing if this listener has already been added.
+             */
+            //注意，这里的project.gradle是全局的gradle对象，而不是project内的对象
             project.gradle.addListener(new BuildTimeListener(project))
         }
     }

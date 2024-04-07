@@ -32,6 +32,16 @@
 
 ## Gradle 构建生命周期
 
+参考链接[Gradle 之一安卓构建流程](https://juejin.cn/post/6987207432535539719)
+
+注意：Gradle 执行脚本文件的时候会生成对应的实例，主要有如下三种对象：
+
+1、Gradle 对象：在项目初始化时构建，全局单例存在，只有这一个对象
+
+2、Project 对象：每一个 build.gradle 都会转换成一个 Project 对象
+
+3、Settings 对象：Seetings.gradle 会转变成一个 Seetings 对象
+
 ![Gradle构建流程图](Gralde构建流程.png)
 
 * 初始化阶段
@@ -305,6 +315,7 @@ classpath "com.dorongold.plugins:task-tree:2.1.0"
 ### 调试插件
 
 * [Android Studio调试Gradle插件](https://blog.csdn.net/ZYJWR/article/details/113129586)
+./gradlew --no-daemon -Dorg.gradle.debug=true :app:assembleDebug
 ./gradlew --no-daemon -Dorg.gradle.debug=true :app:transformClassesWithLifeCycleTransformForDebug 
 
 
