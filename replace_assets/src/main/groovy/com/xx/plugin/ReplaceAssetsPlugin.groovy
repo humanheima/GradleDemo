@@ -23,12 +23,12 @@ class ReplaceAssetsPlugin implements Plugin<Project> {
     void apply(Project project) {
         Log.printlnWithTag(TAG, "apply plugin")
         project.extensions.create("ReplaceAssetsExt", Extension.class)
-//        mExtension = project.property("ReplaceAssetsExt") as Extension
-//
-//        if (mExtension == null) {
-//            Log.printlnWithTag(TAG, "mExtension == null , return")
-//            return
-//        }
+        mExtension = project.property("ReplaceAssetsExt") as Extension
+
+        if (mExtension == null) {
+            Log.printlnWithTag(TAG, "mExtension == null , return")
+            return
+        }
 
         /**
          * Project 的 afterEvaluate 方法 先于 Grade.taskGraph.whenReady执行
@@ -92,6 +92,8 @@ class ReplaceAssetsPlugin implements Plugin<Project> {
                 replaceTask.dependsOn(processDebugResourcesTask)
                 mergeDebugAssetsTasks.forEach {
                     //if (it.path == ":app:mergeDebugAssets") {
+                    //让 replaceTask 任务 和 processDebugResourcesTask 在 mergeDebugAssets 任务之前执行
+                    //默认 processDebugResourcesTask 不是在 mergeDebugAssets 任务之前执行的
                     it.dependsOn(processDebugResourcesTask, replaceTask)
                     Log.printlnWithTag(TAG, "afterEvaluate 获取 mergeDebugAssets 任务名称：${it.name} , 路径：${it.path} ")
                     // }

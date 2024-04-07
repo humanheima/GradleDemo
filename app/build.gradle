@@ -14,8 +14,7 @@ apply plugin: 'ReplaceAssetsPlugin'
 apply from: "../CheckJenkinsParams.gradle"
 
 ReplaceAssetsExt {
-
-    enable = false
+    enable = true
 }
 //编译时间
 def static buildTime() {
@@ -44,8 +43,9 @@ static def getDate() {
 
 CustomPluginExt {
 
-    enable = true
+    enable = false
 }
+
 
 //andResGuard {
 //    mappingFile = file("./resource_mapping.txt")
@@ -234,7 +234,6 @@ android {
 }
 
 afterEvaluate {
-
     Task task = tasks.register('copyFiles', Copy) {
         from 'build/outputs/bundle/debug/app-debug.aab'
         into 'build/outputs/bundle/debug/'
@@ -259,6 +258,7 @@ afterEvaluate {
 //        println("task name = " + it.name)
 //    }
 }
+
 
 
 dependencies {

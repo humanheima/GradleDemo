@@ -1,12 +1,12 @@
 package com.xx.plugin
 
+import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.Project;
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by p_dmweidu on 2022/11/30
@@ -17,7 +17,7 @@ public class ReplaceTask extends DefaultTask {
     private String TAG = "ReplaceTask"
 
     @TaskAction
-     void generateDarkMode() {
+    void generateDarkMode() {
         String resCompiledDirPath = "$project.buildDir/intermediates/processed_res/debug/out"
         String resCompiledFilePath = "$resCompiledDirPath/resources-debug.ap_"
         File resFile = new File(resCompiledFilePath)
@@ -29,7 +29,7 @@ public class ReplaceTask extends DefaultTask {
         }
 
         //存放编译后的资源
-        File destFile = new File("${project.rootDir}/app/src/main/assets/compliedRes")
+        File destFile = new File("${project.rootDir}/app/src/main/assets/compiledRes")
         if (!destFile.exists()) {
             destFile.mkdirs()
         }
@@ -48,24 +48,9 @@ public class ReplaceTask extends DefaultTask {
         Log.printlnWithTag(TAG, " oldDarkModeFile = " + oldDarkModeFile)
         Log.printlnWithTag(TAG, " newSkinDir = " + newSkinDir)
 
-        ProcessBuilder pb = new ProcessBuilder(["which", "7z"])
-        String sevenZipPath = ""
-        try {
-            Process process = pb.start();
-            InputStreamReader ir = new InputStreamReader(process.getInputStream());
-            LineNumberReader input = new LineNumberReader(ir)
-            String tmp
-            while ((tmp = input.readLine()) != null) {
-                if (tmp.endsWith(File.separator + "7z")) {
-                    sevenZipPath = tmp
-                    Log.printlnWithTag(TAG, "do7zipCompressApk 7zip path:" + sevenZipPath)
-                    break
-                }
-            }
-            process.waitFor();
-            process.destroy();
-        } catch (Exception e) {
-            Log.printlnWithTag(TAG, "do7zipCompressApk not found 7zip path: " + e.getMessage())
+        String sevenZipPath = get7zPath2()
+        if (sevenZipPath.isEmpty()) {
+            Log.printlnWithTag(TAG, "do7zipCompressApk 7zip path is empty")
             return
         }
 
@@ -78,6 +63,11 @@ public class ReplaceTask extends DefaultTask {
 
         // 1. 把compliedRes/res/color-night-v8下面的文件都拷贝到 newSkin/color 目录下，直接替换
 
+        File newSkinColorDir = new File(newSkinDir, "color")
+        if (!newSkinColorDir.exists()) {
+            newSkinColorDir.mkdirs()
+        }
+
         File colorNightV8Dir = new File(destFile.getAbsolutePath() + File.separator + "res/color")
         //File colorNightV8Dir = new File(destFile.getAbsolutePath()+File.separator+"res/color-night-v8")
 
@@ -86,7 +76,7 @@ public class ReplaceTask extends DefaultTask {
             File[] colorFiles = colorNightV8Dir.listFiles()
             for (File colorFile : colorFiles) {
                 String fileName = colorFile.getName()
-                File destColorFile = new File("${newSkinDir}/color", fileName)
+                File destColorFile = new File(newSkinColorDir, fileName)
                 Log.printlnWithTag(TAG, "copy color file " + colorFile.getAbsolutePath() + "\n to " + destColorFile.getAbsolutePath())
                 Files.copy(Paths.get(colorFile.getAbsolutePath()), Paths.get(destColorFile.getAbsolutePath()),
                         StandardCopyOption.REPLACE_EXISTING)
@@ -105,7 +95,34 @@ public class ReplaceTask extends DefaultTask {
 
     }
 
-
+    private static String get7zPath2() {
+        String sevenZipPath = "";
+        Process process = null;
+        try {
+            ProcessBuilder builder = new ProcessBuilder("which", "7z");
+            // 不添加这个路径，找不到7z，你可以尝试在你的代码中显式地添加环境变量，以确保 which 命令可以在任何情况下找到 7z。
+            // 你可以使用 ProcessBuilder 的 environment 方法来获取和修改当前的环境变量。
+            // 以下是如何在你的 get7zPath 方法中添加这个修改：
+            Map<String, String> env = builder.environment();
+            env.put("PATH", env.get("PATH") + ":/usr/local/bin");
+            process = builder.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.endsWith("/7z")) {
+                    sevenZipPath = line;
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (process != null) {
+                process.destroy();
+            }
+        }
+        return sevenZipPath;
+    }
     /**
      * 解压7z文件
      *
