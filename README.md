@@ -321,5 +321,53 @@ classpath "com.dorongold.plugins:task-tree:2.1.0"
 
 ./gradlew --no-daemon -Dorg.gradle.debug=true :app:transformClassesWithSpiderStatisticsTransformForDebug
 
+
+### gradle Task 和 Transform 的区别
+
+Gradle的`transform`和`task`都是构建过程中的一部分，但它们在功能和用途上有所不同。
+
+1. `Task`：在Gradle中，`task`是构建过程的基本单位。每个`task`代表了构建过程中的一个步骤，例如编译源代码、打包二进制文件、生成文档等。`task`可以依赖其他`task`，形成一个`task`的执行顺序。`task`可以由用户自定义，也可以由Gradle插件提供。
+
+```groovy
+task hello {
+    doLast {
+        println 'Hello world!'
+    }
+}
+```
+
+2. `Transform`：`Transform`是Android Gradle插件提供的一个API，用于在构建过程中修改或替换生成的class文件或资源文件。`Transform`通常用于实现一些高级功能，例如字节码操纵、资源混淆等。`Transform`的执行是在`task`之间，可以看作是一种特殊的`task`。
+
+```java
+public class MyTransform extends Transform {
+
+    @Override
+    public String getName() {
+        return "myTransform";
+    }
+
+    @Override
+    public Set<QualifiedContent.ContentType> getInputTypes() {
+        return TransformManager.CONTENT_CLASS;
+    }
+
+    @Override
+    public Set<QualifiedContent.Scope> getScopes() {
+        return TransformManager.SCOPE_FULL_PROJECT;
+    }
+
+    @Override
+    public boolean isIncremental() {
+        return true;
+    }
+
+    @Override
+    public void transform(TransformInvocation transformInvocation) {
+        // 实现转换逻辑
+    }
+}
+```
+
+总的来说，`task`和`transform`都是Gradle构建过程中的重要组成部分，但`task`更偏向于通用的构建步骤，而`transform`则更专注于Android构建过程中的特殊需求。
  
 
