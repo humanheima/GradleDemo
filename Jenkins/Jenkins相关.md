@@ -4,7 +4,7 @@
 brew install jenkins-lts
 ```
 
-* 启动服务：brew services start jenkins-lts
+* 启动服务：brew services start jenkins-lts 启动服务后，在浏览器输入 http://localhost:8080/ 即可访问 Jenkins
 * 重启服务：brew services restart jenkins-lts
 * 停止服务：brew services stop jenkins-lts
 

@@ -233,6 +233,48 @@ android {
 
 }
 
+
+task taskA {
+    doLast {
+        println "taskA 执行"
+    }
+}
+
+task taskB {
+    mustRunAfter(taskA)
+    doLast {
+        println "taskB 执行"
+    }
+}
+
+
+def firstTask  = task("firstTask", new Action<Task>() {
+
+    //配置阶段会调用这个方法
+    @Override
+    void execute(Task task) {
+        task.setDescription("我是SecondTask，美滋滋")
+        //真正执行任务的时候才会执行
+        task.doFirst {"do first"}
+    }
+})
+
+//def secondTask  = task("secondTask", new Action<Task>() {
+//
+//    //配置阶段会调用这个方法
+//    @Override
+//    void execute(Task task) {
+//        mustRunAfter("firstTask")
+//        task.setDescription("我是SecondTask，美滋滋")
+//        //真正执行任务的时候才会执行
+//        task.doFirst {"do first"}
+//    }
+//})
+
+
+
+//println(secondTask.description)
+
 afterEvaluate {
     Task task = tasks.register('copyFiles', Copy) {
         from 'build/outputs/bundle/debug/app-debug.aab'
@@ -260,6 +302,12 @@ afterEvaluate {
 }
 
 
+def bakPath  = file("${buildDir}/bakApk/")
+
+def getOldApkPath() {
+    return hasProperty("OLD_APK") ? OLD_APK : "${bakPath}"
+}
+
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -267,6 +315,9 @@ dependencies {
     debugImplementation 'com.facebook.stetho:stetho:1.5.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     //debugImplementation project(path: ':library')
+
+    //debugImplementation 'com.android.tools.build:gradle:4.2.2'
+
 }
 repositories {
     mavenCentral()

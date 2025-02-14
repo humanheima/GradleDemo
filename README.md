@@ -40,7 +40,7 @@
 
 2、Project 对象：每一个 build.gradle 都会转换成一个 Project 对象
 
-3、Settings 对象：Seetings.gradle 会转变成一个 Seetings 对象
+3、Settings 对象：Settings.gradle 会转变成一个 Settings 对象
 
 ![Gradle构建流程图](Gralde构建流程.png)
 
@@ -178,7 +178,30 @@ task taskX{
 * 通过Task输入输出
 
 
-* 通过API指定执行顺序
+* 通过API指定执行顺序 可以指定Task执行顺序的方法还有：
+
+mustRunAfter：指定必须在哪个Task执行完成之后在执行，如 taskA.mustRunAfter(taskB)，表示 taskA 必须在 taskB 之后执行。
+shouldRunAfter：跟mustRunAfter类似，区别在于不强制。不常用。
+finalizedBy ：在任务结束之后执行指定的 Task。如：taskA.finalizedBy(taskB)，表示在 taskA 执行完成之后，再执行 taskB 任务。
+
+```groovy
+task taskA {
+    doLast {
+        println "taskA 执行"
+    }
+}
+
+task taskB {
+    mustRunAfter(taskA)
+    doLast {
+        println "taskB 执行"
+    }
+}
+```
+作者：LittlePlum
+链接：https://juejin.cn/post/6982379643311489032
+来源：稀土掘金
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
 
 
