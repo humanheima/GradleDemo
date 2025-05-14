@@ -1,0 +1,110 @@
+def addRepos(RepositoryHandler handler, String projectName, ConfigurationContainer configurations) {
+
+    // 阿里镜像
+    handler.maven(alibabaCentralMirror)
+    handler.maven(alibabaPublicMirror)
+    handler.maven(alibabaPluginMirror)
+    handler.maven(alibabaGoogleMirror)
+    // 腾讯镜像
+    handler.maven(tencentMavenMirror)
+    handler.maven(tencentPluginMirror)
+
+    handler.google()
+    handler.mavenCentral()
+    handler.maven(yuewenSdkMavenRepo)
+//    handler.maven { url "https://jitpack.io" }
+
+    handler.maven {
+        url "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+    }
+    handler.maven(huaweiMavenRepo)
+    // shipy 灰度
+    handler.maven {
+        url "https://tencent-tds-maven.pkg.coding.net/repository/shiply/repo"
+        content {
+            includeGroupByRegex "com\\.tencent.*"
+        }
+    }
+
+    // 火山引擎语音通话
+    handler.maven {
+        url 'https://artifact.bytedance.com/repository/Volcengine/'
+        content {
+            includeGroupByRegex "com\\.volcengine.*"
+            includeGroupByRegex "com\\.bytedance.*"
+        }
+    }
+
+    // 抖音分享
+    handler.maven {
+        url 'https://artifact.bytedance.com/repository/AwemeOpenSDK'
+        content {
+            includeGroupByRegex "com\\.bytedance.*"
+        }
+    }
+
+    handler.maven {
+        url 'https://artifact.bytedance.com/repository/pangle'
+    }
+
+    // 构建时刷新缓存，防止构建时使用的 maven 快照未更新
+    project.logger.log(LogLevel.WARN, "update all changing dependencies in $projectName")
+    configurations.all {
+        // check for updates every build
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+}
+
+ext.addRepos = this.&addRepos
+
+/**
+ * 腾讯镜像 https://coding.net/help/docs/ci/practice/mirrors.html
+ */
+ext.tencentMavenMirror = {
+    url "https://mirrors.cloud.tencent.com/nexus/repository/maven-public/"
+}
+ext.tencentPluginMirror = {
+    url "https://mirrors.cloud.tencent.com/nexus/repository/gradle-plugins/"
+}
+
+/**
+ * 阿里maven镜像 https://help.aliyun.com/zh/yunxiao/user-guide/public-agent-library
+ */
+ext.alibabaCentralMirror = {
+    url "https://maven.aliyun.com/repository/central"
+}
+ext.alibabaPublicMirror = {
+    url "https://maven.aliyun.com/repository/public"
+}
+ext.alibabaPluginMirror = {
+    url "https://maven.aliyun.com/repository/gradle-plugin"
+}
+ext.alibabaGoogleMirror = {
+    url "https://maven.aliyun.com/repository/google"
+}
+
+/**
+ * 华为sdk仓库
+ */
+ext.huaweiMavenRepo = {
+    url "https://developer.huawei.com/repo/"
+    content {
+        includeGroupByRegex "com\\.huawei.*"
+    }
+}
+
+/**
+ * 阅文sdk 私有仓库
+ */
+ext.yuewenSdkMavenRepo = {
+    url MAVEN_REPO_URL
+    credentials {
+        username = MAVEN_USERNAME
+        password = MAVEN_PASSWORD
+    }
+    content {
+        includeGroupByRegex "com\\.yuewen.*"
+        includeGroupByRegex "com\\.qq\\.reader.*"
+        includeGroupByRegex "QDReader.*"
+    }
+}

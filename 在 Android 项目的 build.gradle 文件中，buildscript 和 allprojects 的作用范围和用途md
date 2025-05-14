@@ -1,0 +1,48 @@
+在 Android 项目的 build.gradle 文件中，buildscript 和 allprojects 是两个不同的配置块，它们的作用范围和用途有重要区别：
+
+
+在 Android 项目的 `build.gradle` 文件中，`buildscript` 和 `allprojects` 是两个不同的配置块，它们的作用范围和用途有重要区别：
+
+---
+
+### **1. `buildscript` 配置块**
+#### **作用**：
+- 用于配置 **Gradle 构建过程本身** 所需的依赖和仓库（即构建脚本的依赖）
+- 这些依赖 **不会** 被包含到你的项目代码或模块中
+
+#### **典型用途**：
+- 声明 Gradle 插件（如 `com.android.tools.build:gradle`）
+- 声明 Kotlin 插件（如 `org.jetbrains.kotlin:kotlin-gradle-plugin`）
+- 声明其他构建工具（如 ProGuard、ASM 插件等）
+
+#### **特点**：
+- 内部声明的 `repositories` 仅用于解析 `dependencies` 中的构建脚本依赖
+- 内部声明的依赖通过 `classpath` 添加（如 `classpath 'com.android.tools.build:gradle:7.2.0'`）
+
+---
+
+### **2. `allprojects` 配置块**
+#### **作用**：
+- 用于配置 **所有项目模块**（包括根项目和各子模块）的依赖仓库
+- 这些配置会应用到整个项目及其所有模块
+
+#### **典型用途**：
+- 声明项目中所有模块共用的仓库（如 `google()`、`mavenCentral()`）
+- 统一配置所有模块的公共属性（如 Android 版本、Java 版本等）
+
+#### **特点**：
+- 内部声明的 `repositories` 用于解析项目代码中的依赖（如 `implementation`、`api` 等）
+- 可以覆盖单个模块的 `build.gradle` 中的配置
+
+---
+
+### **关键区别总结**
+| 特性                | `buildscript`                          | `allprojects`                          |
+|---------------------|----------------------------------------|----------------------------------------|
+| **作用对象**         | Gradle 构建脚本本身                    | 项目代码和所有模块                     |
+| **依赖类型**         | `classpath`（构建工具）                | `implementation`/`api`（项目代码依赖） |
+| **仓库用途**         | 解析构建脚本的依赖                     | 解析项目代码的依赖                     |
+| **典型配置内容**     | Android Gradle 插件、Kotlin 插件等     | Google Maven、Maven Central 等公共仓库 |
+| **是否影响模块代码** | 否                                     | 是                                     |
+
+---
