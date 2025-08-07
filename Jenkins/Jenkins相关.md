@@ -18,6 +18,8 @@ SDK location not found. Define location with an ANDROID_SDK_ROOT environment var
 
 ![配置全局变量](配置全局变量.png)
 
+注意，还要设置 ：打开你的 FreeStyle 项目配置页面，
+在 Build Environment 部分，勾选 Inject environment variables to the build process。如果没有这个选项，可能是 EnvInject 插件未安装。
 
 ### 传递参数
 
@@ -34,3 +36,18 @@ SDK location not found. Define location with an ANDROID_SDK_ROOT environment var
 * [Mac的Jenkins持续集成环境搭建](https://www.jianshu.com/p/96fa461c543b)
 * [Mac下获取Homebrew安装的软件路径](https://juejin.cn/post/6844903561705291789)
 
+
+## TODO 
+
+查看已安装的 Python 包 qrcode 的版本
+```
+pip3 show qrcode
+```
+
+export PATH=$PATH:/Library/Frameworks/Python.framework/Versions/3.10/bin/python3
+
+
+
+APK_URL="http://192.168.0.102:8080/apk/${BUILD_ID}/app-release.apk"
+QR_IMAGE_PATH="${WORKSPACE}/qrcode.png"
+java -cp ${WORKSPACE}/ci_tools:${WORKSPACE}/ci_tools/zxing-core-3.5.3.jar GenerateQRCode "$APK_URL" "$QR_IMAGE_PATH"
