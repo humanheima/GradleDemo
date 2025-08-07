@@ -110,3 +110,18 @@ PATH=$PATH:/Library/Frameworks/Python.framework/Versions/3.10/bin/python3
 ```
 
 ![Environment 注入环境变量.png](Environment%20%E6%B3%A8%E5%85%A5%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F.png)
+
+
+2. 出现错误
+
+```shell
+出现  What went wrong:
+Execution failed for task ':app:transformClassesWithSpiderStatisticsTransformForRelease'.
+> superinterface check failed: class com.qq.reader.statistics.plugin.SpiderStatisticsUtil (in unnamed module @0x71c94cfa) cannot access class jdk.internal.org.objectweb.asm.Opcodes (in module java.base) because module java.base does not export jdk.internal.org.objectweb.asm to unnamed module @0x71c94cfa
+```
+
+解决方式：在gradle.properties中添加：
+
+```shell
+org.gradle.jvmargs=--add-exports=java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED
+```
