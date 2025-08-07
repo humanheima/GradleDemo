@@ -125,3 +125,14 @@ Execution failed for task ':app:transformClassesWithSpiderStatisticsTransformFor
 ```shell
 org.gradle.jvmargs=--add-exports=java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED
 ```
+
+# 生成二维码的另外一种方式
+
+直接在 build.sh 中 执行下面的命令，使用 qrcode 生成。
+使用 python 
+```shell
+APK_PATH="${WORKSPACE}/app/build/outputs/apk/debug/app-debug.apk"
+python3 -m pip install qrcode[pil] --user
+python3 -c "import qrcode; qrcode.make('${APK_PATH}').save('${WORKSPACE}/ci_tools/another_qrcode.png')"
+
+```
